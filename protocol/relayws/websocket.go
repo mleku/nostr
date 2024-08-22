@@ -2,13 +2,14 @@ package relayws
 
 import (
 	"crypto/rand"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
 	"ec.mleku.dev/v2/bech32"
-	w "github.com/fasthttp/websocket"
+	"github.com/fasthttp/websocket"
 	"nostr.mleku.dev/codec/bech32encoding"
 	"util.mleku.dev/atomic"
 	"util.mleku.dev/context"
@@ -19,34 +20,48 @@ type MessageType int
 
 // WS is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
 type WS struct {
-	Conn         *w.Conn
-	remote       atomic.String
-	mutex        sync.Mutex
-	Request      *http.Request // original request
-	challenge    atomic.String // nip42
-	Pending      atomic.Value  // for DM CLI authentication
-	authPub      atomic.Value
-	Authed       qu.C
-	OffenseCount atomic.Uint32 // when client does dumb stuff, increment this
-	Ctx          context.T
+	conn      *websocket.Conn
+	remote    atomic.String
+	mutex     sync.Mutex
+	Request   *http.Request // original request
+	challenge atomic.String // nip42
+	Pending   atomic.Value  // for DM CLI authentication
+	authPub   atomic.Value
+	Authed    qu.C
+	c         context.T
+	cancel    context.F
 }
 
-func New(c context.T, conn *w.Conn, r *http.Request, maxMsg int) (ws *WS) {
+func New(conn *websocket.Conn, r *http.Request, maxMsg int) (ws *WS) {
 	// authPubKey must be initialized with a zero length slice so it can be detected when it
 	// hasn't been loaded.
 	var authPubKey atomic.Value
 	authPubKey.Store(B{})
-	ws = &WS{Conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
+	ws = &WS{conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
 	ws.generateChallenge()
-	ws.setRemote(r)
+	ws.setRemoteFromReq(r)
 	conn.SetReadLimit(int64(maxMsg))
 	conn.EnableWriteCompression(true)
-	ws.Ctx = c
 	return
 }
 
-func (ws *WS) Ping() (err E) { return ws.write(w.PingMessage, nil) }
-func (ws *WS) Pong() (err E) { return ws.write(w.PongMessage, nil) }
+// Ping sends a ping to see if the other side is still responsive.
+func (ws *WS) Ping() (err E) { return ws.write(websocket.PingMessage, nil) }
+
+// Pong sends a Pong message, should be the response to receiving  Ping.
+func (ws *WS) Pong() (err E) { return ws.write(websocket.PongMessage, nil) }
+
+// Close signals the other side to close the connection.
+func (ws *WS) Close() (err E) { return ws.write(websocket.CloseMessage, nil) }
+
+// Challenge returns the current challenge on a websocket.
+func (ws *WS) Challenge() (challenge B) { return B(ws.challenge.Load()) }
+
+// Remote returns the current real remote.
+func (ws *WS) Remote() (remote S) { return ws.remote.Load() }
+
+// setRemote sets the current remote URL that is returned by Remote.
+func (ws *WS) setRemote(remote S) { ws.remote.Store(remote) }
 
 // write writes a message with a given websocket type specifier
 func (ws *WS) write(t MessageType, b B) (err E) {
@@ -55,14 +70,23 @@ func (ws *WS) write(t MessageType, b B) (err E) {
 	if len(b) != 0 {
 		log.T.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
 	}
-	chk.E(ws.Conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
-	return ws.Conn.WriteMessage(int(t), b)
+	chk.E(ws.conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
+	return ws.conn.WriteMessage(int(t), b)
 }
 
 // WriteTextMessage writes a text (binary?) message
-func (ws *WS) WriteTextMessage(b B) (err E) {
-	return ws.write(w.TextMessage, b)
+func (ws *WS) WriteTextMessage(b B) (err E) { return ws.write(websocket.TextMessage, b) }
+
+// Write implements the standard io.Writer interface.
+func (ws *WS) Write(b []byte) (n int, err error) {
+	if err = ws.WriteTextMessage(b); chk.E(err) {
+		return
+	}
+	n = len(b)
+	return
 }
+
+var _ io.Writer = (*WS)(nil)
 
 const ChallengeLength = 16
 const ChallengeHRP = "nchal"
@@ -89,15 +113,8 @@ func (ws *WS) generateChallenge() (challenge S) {
 	return
 }
 
-// Challenge returns the current challenge on a websocket.
-func (ws *WS) Challenge() (challenge B) { return B(ws.challenge.Load()) }
-
-// Remote returns the current real remote.
-func (ws *WS) Remote() (remote S) { return ws.remote.Load() }
-func (ws *WS) SetRemote(remote S) { ws.remote.Store(remote) }
-
-// SetAuthPub loads the authPubKey atomic of the websocket.
-func (ws *WS) SetAuthPub(a B) {
+// setAuthPub loads the authPubKey atomic of the websocket.
+func (ws *WS) setAuthPub(a B) {
 	aa := make(B, 0, len(a))
 	copy(aa, a)
 	ws.authPub.Store(aa)
@@ -117,7 +134,7 @@ func (ws *WS) HasAuth() bool {
 	return len(b) > 0
 }
 
-func (ws *WS) setRemote(r *http.Request) {
+func (ws *WS) setRemoteFromReq(r *http.Request) {
 	var rr string
 	// reverse proxy should populate this field so we see the remote not the proxy
 	rem := r.Header.Get("X-Forwarded-For")
@@ -138,7 +155,7 @@ func (ws *WS) setRemote(r *http.Request) {
 	} else {
 		// if that fails, fall back to the remote (probably the proxy, unless the relay is
 		// actually directly listening)
-		rr = ws.Conn.NetConn().RemoteAddr().String()
+		rr = ws.conn.NetConn().RemoteAddr().String()
 	}
-	ws.SetRemote(rr)
+	ws.setRemote(rr)
 }

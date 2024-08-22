@@ -117,7 +117,7 @@ func (t *T) Relay() (s B) {
 		equals(t.Key(), ptag)) &&
 		len(t.Field) >= Relay {
 
-		return normalize.URL(t.Field[Relay])
+		return normalize.URL(B(t.Field[Relay]))
 	}
 	return
 }

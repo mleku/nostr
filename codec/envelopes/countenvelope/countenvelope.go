@@ -3,13 +3,13 @@ package countenvelope
 import "C"
 import (
 	"bytes"
+	"io"
 
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
 	"nostr.mleku.dev/codec/filters"
 	sid "nostr.mleku.dev/codec/subscriptionid"
 	"nostr.mleku.dev/codec/text"
-	"nostr.mleku.dev/protocol/relayws"
 	"util.mleku.dev/ints"
 )
 
@@ -31,12 +31,13 @@ func NewRequest(id *sid.T, filters *filters.T) *Request {
 		Filters: filters}
 }
 func (en *Request) Label() string { return L }
-func (en *Request) Write(ws *relayws.WS) (err E) {
+func (en *Request) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Request) MarshalJSON(dst B) (b B, err error) {
@@ -87,12 +88,13 @@ func NewResponseFrom(id *sid.T, cnt int, approx bool) *Response {
 	return &Response{id, cnt, approx}
 }
 func (en *Response) Label() string { return L }
-func (en *Response) Write(ws *relayws.WS) (err E) {
+func (en *Response) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Response) MarshalJSON(dst B) (b B, err error) {

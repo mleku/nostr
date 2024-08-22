@@ -1,11 +1,12 @@
 package eventenvelope
 
 import (
+	"io"
+
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
 	"nostr.mleku.dev/codec/event"
 	sid "nostr.mleku.dev/codec/subscriptionid"
-	"nostr.mleku.dev/protocol/relayws"
 )
 
 const L = "EVENT"
@@ -21,12 +22,13 @@ func NewSubmission() *Submission                { return &Submission{T: &event.T
 func NewSubmissionWith(ev *event.T) *Submission { return &Submission{T: ev} }
 func (en *Submission) Label() string            { return L }
 
-func (en *Submission) Write(ws *relayws.WS) (err E) {
+func (en *Submission) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Submission) MarshalJSON(dst B) (b B, err error) {
@@ -70,12 +72,13 @@ func NewResult() *Result                          { return &Result{} }
 func NewResultWith(s *sid.T, ev *event.T) *Result { return &Result{Subscription: s, Event: ev} }
 func (en *Result) Label() S                       { return L }
 
-func (en *Result) Write(ws *relayws.WS) (err E) {
+func (en *Result) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Result) MarshalJSON(dst B) (b B, err error) {

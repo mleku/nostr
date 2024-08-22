@@ -1,12 +1,13 @@
 package reqenvelope
 
 import (
+	"io"
+
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
 	"nostr.mleku.dev/codec/filters"
 	sid "nostr.mleku.dev/codec/subscriptionid"
 	"nostr.mleku.dev/codec/text"
-	"nostr.mleku.dev/protocol/relayws"
 )
 
 const L = "REQ"
@@ -24,12 +25,14 @@ func New() *T {
 }
 func NewFrom(id *sid.T, filters *filters.T) *T { return &T{Subscription: id, Filters: filters} }
 func (en *T) Label() string                    { return L }
-func (en *T) Write(ws *relayws.WS) (err E) {
+
+func (en *T) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *T) MarshalJSON(dst B) (b B, err error) {

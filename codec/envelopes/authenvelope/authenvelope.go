@@ -1,11 +1,12 @@
 package authenvelope
 
 import (
+	"io"
+
 	envs "nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
 	"nostr.mleku.dev/codec/event"
 	"nostr.mleku.dev/codec/text"
-	"nostr.mleku.dev/protocol/relayws"
 )
 
 const L = "AUTH"
@@ -17,12 +18,14 @@ type Challenge struct {
 func NewChallenge() *Challenge                { return &Challenge{} }
 func NewChallengeWith(challenge B) *Challenge { return &Challenge{Challenge: challenge} }
 func (en *Challenge) Label() string           { return L }
-func (en *Challenge) Write(ws *relayws.WS) (err E) {
+
+func (en *Challenge) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Challenge) MarshalJSON(dst B) (b B, err E) {
@@ -61,12 +64,13 @@ var _ enveloper.I = (*Response)(nil)
 func NewResponse() *Response       { return &Response{} }
 func (en *Response) Label() string { return L }
 
-func (en *Response) Write(ws *relayws.WS) (err E) {
+func (en *Response) Write(w io.Writer) (err E) {
 	var b B
 	if b, err = en.MarshalJSON(b); chk.E(err) {
 		return
 	}
-	return ws.WriteTextMessage(b)
+	_, err = w.Write(b)
+	return
 }
 
 func (en *Response) MarshalJSON(dst B) (b B, err E) {
