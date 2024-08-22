@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os"
 
-	"nostr.mleku.dev/util/lol"
+	"util.mleku.dev/lol"
 )
 
 type (

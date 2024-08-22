@@ -12,7 +12,7 @@ import (
 	"nostr.mleku.dev/codec/bech32encoding/pointers"
 	"nostr.mleku.dev/codec/eventid"
 	"nostr.mleku.dev/codec/kind"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 var (

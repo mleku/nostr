@@ -10,14 +10,14 @@ import (
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
 	"nostr.mleku.dev/codec/event"
-	"nostr.mleku.dev/codec/ints"
 	"nostr.mleku.dev/codec/kind"
 	"nostr.mleku.dev/codec/kinds"
 	"nostr.mleku.dev/codec/tag"
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/text"
 	"nostr.mleku.dev/codec/timestamp"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
+	"util.mleku.dev/ints"
 )
 
 // T is the primary query form for requesting events from a nostr relay.

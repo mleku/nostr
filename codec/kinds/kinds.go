@@ -1,8 +1,8 @@
 package kinds
 
 import (
-	"nostr.mleku.dev/codec/ints"
 	"nostr.mleku.dev/codec/kind"
+	"util.mleku.dev/ints"
 )
 
 type T struct {

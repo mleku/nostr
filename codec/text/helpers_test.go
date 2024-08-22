@@ -5,7 +5,7 @@ import (
 
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 func TestUnmarshalHexArray(t *testing.T) {

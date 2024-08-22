@@ -11,7 +11,7 @@ import (
 	"nostr.mleku.dev/codec/tag"
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/timestamp"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 // Reader is a control structure for reading and writing buffers.

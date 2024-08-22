@@ -7,10 +7,10 @@ import (
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
 	"nostr.mleku.dev/codec/filters"
-	"nostr.mleku.dev/codec/ints"
 	sid "nostr.mleku.dev/codec/subscriptionid"
 	"nostr.mleku.dev/codec/text"
 	"nostr.mleku.dev/protocol/relayws"
+	"util.mleku.dev/ints"
 )
 
 const L = "COUNT"

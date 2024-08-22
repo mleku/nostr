@@ -8,7 +8,7 @@ import (
 	"nostr.mleku.dev/codec/kind"
 	"nostr.mleku.dev/codec/timestamp"
 	"nostr.mleku.dev/crypto/p256k"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 func GenerateEvent(nsec B, maxSize int) (ev *event.T, binSize int, err E) {

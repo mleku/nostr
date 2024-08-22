@@ -9,7 +9,7 @@ import (
 
 	"lukechampine.com/frand"
 	"nostr.mleku.dev/crypto/p256k"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 // ComputeSharedSecret returns a shared secret key used to encrypt messages. The private and public keys should be hex

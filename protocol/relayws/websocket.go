@@ -10,39 +10,14 @@ import (
 	"ec.mleku.dev/v2/bech32"
 	w "github.com/fasthttp/websocket"
 	"nostr.mleku.dev/codec/bech32encoding"
-	"nostr.mleku.dev/util/atomic"
-	"nostr.mleku.dev/util/context"
-	"nostr.mleku.dev/util/qu"
+	"util.mleku.dev/atomic"
+	"util.mleku.dev/context"
+	"util.mleku.dev/qu"
 )
 
 type MessageType int
 
-// The message types are defined in RFC 6455, section 11.8.
-//
-// Repeating here for shorter names.
-const (
-	// TextMessage denotes a text data message. The text message payload is interpreted as UTF-8
-	// encoded text data.
-	TextMessage MessageType = w.TextMessage
-
-	// BinaryMessage denotes a binary data message.
-	BinaryMessage MessageType = w.BinaryMessage
-
-	// CloseMessage denotes a close control message. The optional message payload contains a
-	// numeric code and text. Use the FormatCloseMessage function to format a close message
-	// payload.
-	CloseMessage MessageType = w.CloseMessage
-
-	// PingMessage denotes a ping control message. The optional message payload is UTF-8 encoded
-	// text.
-	PingMessage MessageType = w.PingMessage
-
-	// PongMessage denotes a pong control message. The optional message payload is UTF-8 encoded
-	// text.
-	PongMessage MessageType = w.PongMessage
-)
-
-// WS is a wrapper around a gorilla/websocket with mutex locking and NIP-42 IsAuthed support
+// WS is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
 type WS struct {
 	Conn         *w.Conn
 	remote       atomic.String

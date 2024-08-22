@@ -10,7 +10,7 @@ import (
 	"github.com/minio/sha256-simd"
 	"github.com/stretchr/testify/assert"
 	"nostr.mleku.dev/crypto/keys"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 func assertCryptPriv(t *testing.T, sk1, sk2, conversationKey, salt, plaintext, expected S) {

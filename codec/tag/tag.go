@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	"nostr.mleku.dev/codec/text"
-	"nostr.mleku.dev/util/normalize"
+	"util.mleku.dev/normalize"
 )
 
 // The tag position meanings so they are clear when reading.

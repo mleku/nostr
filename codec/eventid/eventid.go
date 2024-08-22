@@ -7,7 +7,7 @@ import (
 
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 // T is the SHA256 hash in hexadecimal of the canonical form of an event as

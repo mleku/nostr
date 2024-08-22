@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"nostr.mleku.dev/util/context"
-	"nostr.mleku.dev/util/normalize"
+	"util.mleku.dev/context"
+	"util.mleku.dev/normalize"
 )
 
 // Fetch fetches the NIP-11 Info.

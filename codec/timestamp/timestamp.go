@@ -5,7 +5,7 @@ import (
 	"time"
 	"unsafe"
 
-	"nostr.mleku.dev/codec/ints"
+	"util.mleku.dev/ints"
 )
 
 // T is a convenience type for UNIX 64 bit timestamps of 1 second

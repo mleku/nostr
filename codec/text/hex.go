@@ -1,7 +1,7 @@
 package text
 
 import (
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 func AppendHexFromBinary(dst, src B, quote bool) (b B) {

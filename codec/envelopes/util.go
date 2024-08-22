@@ -3,8 +3,8 @@ package envelopes
 import (
 	"bytes"
 
-	"nostr.mleku.dev/util/context"
-	"nostr.mleku.dev/util/lol"
+	"util.mleku.dev/context"
+	"util.mleku.dev/lol"
 )
 
 type (

@@ -5,7 +5,7 @@ import (
 	"ec.mleku.dev/v2/bech32"
 	"ec.mleku.dev/v2/schnorr"
 	"ec.mleku.dev/v2/secp256k1"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 const (

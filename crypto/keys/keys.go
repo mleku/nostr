@@ -6,7 +6,7 @@ import (
 	"ec.mleku.dev/v2"
 	"ec.mleku.dev/v2/schnorr"
 	"nostr.mleku.dev/crypto/p256k"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 var GeneratePrivateKey = func() B { return GenerateSecretKeyHex() }

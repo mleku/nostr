@@ -9,7 +9,7 @@ import (
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/text"
 	"nostr.mleku.dev/codec/timestamp"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 // T is the primary datatype of nostr. This is the form of the structure that

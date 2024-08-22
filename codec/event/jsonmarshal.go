@@ -2,7 +2,7 @@ package event
 
 import (
 	"nostr.mleku.dev/codec/text"
-	"nostr.mleku.dev/util/hex"
+	"util.mleku.dev/hex"
 )
 
 func (ev *T) MarshalJSON(dst B) (b B, err error) {

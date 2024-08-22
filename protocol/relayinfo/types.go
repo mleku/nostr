@@ -8,7 +8,7 @@ import (
 
 	"nostr.mleku.dev/codec/kinds"
 	"nostr.mleku.dev/codec/timestamp"
-	"nostr.mleku.dev/util/number"
+	"util.mleku.dev/number"
 )
 
 type NIP struct {
