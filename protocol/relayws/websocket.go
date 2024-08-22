@@ -20,24 +20,24 @@ type MessageType int
 
 // WS is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
 type WS struct {
-	conn      *websocket.Conn
-	remote    atomic.String
+	Ctx       context.T
+	Cancel context.F
+	Conn   *websocket.Conn
+	remote atomic.String
 	mutex     sync.Mutex
 	Request   *http.Request // original request
 	challenge atomic.String // nip42
 	Pending   atomic.Value  // for DM CLI authentication
 	authPub   atomic.Value
 	Authed    qu.C
-	c         context.T
-	cancel    context.F
 }
 
-func New(conn *websocket.Conn, r *http.Request, maxMsg int) (ws *WS) {
+func New(c context.T, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *WS) {
 	// authPubKey must be initialized with a zero length slice so it can be detected when it
 	// hasn't been loaded.
 	var authPubKey atomic.Value
 	authPubKey.Store(B{})
-	ws = &WS{conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
+	ws = &WS{Ctx: c, Conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
 	ws.generateChallenge()
 	ws.setRemoteFromReq(r)
 	conn.SetReadLimit(int64(maxMsg))
@@ -70,8 +70,8 @@ func (ws *WS) write(t MessageType, b B) (err E) {
 	if len(b) != 0 {
 		log.T.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
 	}
-	chk.E(ws.conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
-	return ws.conn.WriteMessage(int(t), b)
+	chk.E(ws.Conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
+	return ws.Conn.WriteMessage(int(t), b)
 }
 
 // WriteTextMessage writes a text (binary?) message
@@ -155,7 +155,7 @@ func (ws *WS) setRemoteFromReq(r *http.Request) {
 	} else {
 		// if that fails, fall back to the remote (probably the proxy, unless the relay is
 		// actually directly listening)
-		rr = ws.conn.NetConn().RemoteAddr().String()
+		rr = ws.Conn.NetConn().RemoteAddr().String()
 	}
 	ws.setRemote(rr)
 }
