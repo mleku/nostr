@@ -2,7 +2,6 @@ package subscriptionid
 
 import (
 	"crypto/rand"
-	"errors"
 
 	"ec.mleku.dev/v2/bech32"
 	"nostr.mleku.dev/codec/text"
@@ -27,8 +26,8 @@ func New[V S | B](s V) (*T, error) {
 	} else {
 		// remove invalid return value
 		si.T = si.T[:0]
-		return si, errors.New(
-			"invalid subscription ID - either < 0 or > 64 char length")
+		return si, errorf.E(
+			"invalid subscription ID - length %d < 1 or > 64", len(si.T))
 	}
 }
 

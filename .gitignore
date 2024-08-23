@@ -34,5 +34,6 @@
 !.gitmodules
 !*.yml
 !*.yaml
+!*.disabled
 # ...even if they are in subdirectories
 !*/

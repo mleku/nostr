@@ -21,9 +21,9 @@ type MessageType int
 // WS is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
 type WS struct {
 	Ctx       context.T
-	Cancel context.F
-	Conn   *websocket.Conn
-	remote atomic.String
+	Cancel    context.F
+	Conn      *websocket.Conn
+	remote    atomic.String
 	mutex     sync.Mutex
 	Request   *http.Request // original request
 	challenge atomic.String // nip42

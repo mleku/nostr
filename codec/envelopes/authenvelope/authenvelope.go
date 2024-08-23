@@ -61,8 +61,9 @@ type Response struct {
 
 var _ enveloper.I = (*Response)(nil)
 
-func NewResponse() *Response       { return &Response{} }
-func (en *Response) Label() string { return L }
+func NewResponse() *Response                   { return &Response{} }
+func NewResponseWith(event *event.T) *Response { return &Response{Event: event} }
+func (en *Response) Label() string             { return L }
 
 func (en *Response) Write(w io.Writer) (err E) {
 	var b B
