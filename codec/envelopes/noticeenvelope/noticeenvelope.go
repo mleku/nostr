@@ -52,3 +52,11 @@ func (en *T) UnmarshalJSON(b B) (r B, err E) {
 	}
 	return
 }
+
+func Parse(b B) (t *T, rem B, err E) {
+	t = New()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+		return
+	}
+	return
+}

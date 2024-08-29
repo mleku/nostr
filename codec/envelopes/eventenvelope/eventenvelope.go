@@ -46,15 +46,22 @@ func (en *Submission) MarshalJSON(dst B) (b B, err error) {
 
 func (en *Submission) UnmarshalJSON(b B) (r B, err error) {
 	r = b
-	log.W.F("%s", r)
 	en.T = event.New()
 	if r, err = en.T.UnmarshalJSON(r); chk.E(err) {
 		return
 	}
-	var bb B
-	bb, err = en.T.MarshalJSON(nil)
-	log.I.F("%s", bb)
+	if r, err = en.T.MarshalJSON(nil); chk.E(err) {
+		return
+	}
 	if r, err = envelopes.SkipToTheEnd(r); chk.E(err) {
+		return
+	}
+	return
+}
+
+func ParseSubmission(b B) (t *Submission, rem B, err E) {
+	t = NewSubmission()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
 		return
 	}
 	return
@@ -111,6 +118,14 @@ func (en *Result) UnmarshalJSON(b B) (r B, err error) {
 		return
 	}
 	if r, err = envelopes.SkipToTheEnd(r); chk.E(err) {
+		return
+	}
+	return
+}
+
+func ParseResult(b B) (t *Result, rem B, err E) {
+	t = NewResult()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
 		return
 	}
 	return

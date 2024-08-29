@@ -1,4 +1,4 @@
-package relayws
+package ws
 
 import (
 	"bytes"

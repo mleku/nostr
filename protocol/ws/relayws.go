@@ -1,4 +1,4 @@
-package relayws
+package ws
 
 import (
 	"crypto/rand"
@@ -18,8 +18,9 @@ import (
 
 type MessageType int
 
-// WS is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
-type WS struct {
+// Serv is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
+// for handling inbound connections from clients.
+type Serv struct {
 	Ctx       context.T
 	Cancel    context.F
 	Conn      *websocket.Conn
@@ -32,12 +33,12 @@ type WS struct {
 	Authed    qu.C
 }
 
-func New(c context.T, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *WS) {
+func New(c context.T, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *Serv) {
 	// authPubKey must be initialized with a zero length slice so it can be detected when it
 	// hasn't been loaded.
 	var authPubKey atomic.Value
 	authPubKey.Store(B{})
-	ws = &WS{Ctx: c, Conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
+	ws = &Serv{Ctx: c, Conn: conn, Request: r, Authed: qu.T(), authPub: authPubKey}
 	ws.generateChallenge()
 	ws.setRemoteFromReq(r)
 	conn.SetReadLimit(int64(maxMsg))
@@ -46,25 +47,25 @@ func New(c context.T, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *WS
 }
 
 // Ping sends a ping to see if the other side is still responsive.
-func (ws *WS) Ping() (err E) { return ws.write(websocket.PingMessage, nil) }
+func (ws *Serv) Ping() (err E) { return ws.write(websocket.PingMessage, nil) }
 
 // Pong sends a Pong message, should be the response to receiving  Ping.
-func (ws *WS) Pong() (err E) { return ws.write(websocket.PongMessage, nil) }
+func (ws *Serv) Pong() (err E) { return ws.write(websocket.PongMessage, nil) }
 
 // Close signals the other side to close the connection.
-func (ws *WS) Close() (err E) { return ws.write(websocket.CloseMessage, nil) }
+func (ws *Serv) Close() (err E) { return ws.write(websocket.CloseMessage, nil) }
 
 // Challenge returns the current challenge on a websocket.
-func (ws *WS) Challenge() (challenge B) { return B(ws.challenge.Load()) }
+func (ws *Serv) Challenge() (challenge B) { return B(ws.challenge.Load()) }
 
 // Remote returns the current real remote.
-func (ws *WS) Remote() (remote S) { return ws.remote.Load() }
+func (ws *Serv) Remote() (remote S) { return ws.remote.Load() }
 
 // setRemote sets the current remote URL that is returned by Remote.
-func (ws *WS) setRemote(remote S) { ws.remote.Store(remote) }
+func (ws *Serv) setRemote(remote S) { ws.remote.Store(remote) }
 
 // write writes a message with a given websocket type specifier
-func (ws *WS) write(t MessageType, b B) (err E) {
+func (ws *Serv) write(t MessageType, b B) (err E) {
 	ws.mutex.Lock()
 	defer ws.mutex.Unlock()
 	if len(b) != 0 {
@@ -75,10 +76,10 @@ func (ws *WS) write(t MessageType, b B) (err E) {
 }
 
 // WriteTextMessage writes a text (binary?) message
-func (ws *WS) WriteTextMessage(b B) (err E) { return ws.write(websocket.TextMessage, b) }
+func (ws *Serv) WriteTextMessage(b B) (err E) { return ws.write(websocket.TextMessage, b) }
 
 // Write implements the standard io.Writer interface.
-func (ws *WS) Write(b []byte) (n int, err error) {
+func (ws *Serv) Write(b []byte) (n int, err error) {
 	if err = ws.WriteTextMessage(b); chk.E(err) {
 		return
 	}
@@ -86,13 +87,13 @@ func (ws *WS) Write(b []byte) (n int, err error) {
 	return
 }
 
-var _ io.Writer = (*WS)(nil)
+var _ io.Writer = (*Serv)(nil)
 
 const ChallengeLength = 16
 const ChallengeHRP = "nchal"
 
 // generateChallenge gathers new entropy to generate a new challenge, stores it and returns it.
-func (ws *WS) generateChallenge() (challenge S) {
+func (ws *Serv) generateChallenge() (challenge S) {
 	var err error
 	// create a new challenge for this connection
 	cb := make([]byte, ChallengeLength)
@@ -114,14 +115,14 @@ func (ws *WS) generateChallenge() (challenge S) {
 }
 
 // setAuthPub loads the authPubKey atomic of the websocket.
-func (ws *WS) setAuthPub(a B) {
+func (ws *Serv) setAuthPub(a B) {
 	aa := make(B, 0, len(a))
 	copy(aa, a)
 	ws.authPub.Store(aa)
 }
 
 // AuthPub returns the current authed Pubkey.
-func (ws *WS) AuthPub() (a B) {
+func (ws *Serv) AuthPub() (a B) {
 	b := ws.authPub.Load().(B)
 	a = make(B, 0, len(b))
 	// make a copy because bytes are references
@@ -129,12 +130,12 @@ func (ws *WS) AuthPub() (a B) {
 	return
 }
 
-func (ws *WS) HasAuth() bool {
+func (ws *Serv) HasAuth() bool {
 	b := ws.authPub.Load().(B)
 	return len(b) > 0
 }
 
-func (ws *WS) setRemoteFromReq(r *http.Request) {
+func (ws *Serv) setRemoteFromReq(r *http.Request) {
 	var rr string
 	// reverse proxy should populate this field so we see the remote not the proxy
 	rem := r.Header.Get("X-Forwarded-For")

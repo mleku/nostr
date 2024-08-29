@@ -75,6 +75,14 @@ func (en *Request) UnmarshalJSON(b B) (r B, err error) {
 	return
 }
 
+func ParseRequest(b B) (t *Request, rem B, err E) {
+	t = New()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+		return
+	}
+	return
+}
+
 type Response struct {
 	ID          *sid.T
 	Count       int
@@ -172,6 +180,14 @@ func (en *Response) UnmarshalJSON(b B) (r B, err error) {
 				}
 			}
 		}
+	}
+	return
+}
+
+func Parse(b B) (t *Response, rem B, err E) {
+	t = NewResponse()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+		return
 	}
 	return
 }

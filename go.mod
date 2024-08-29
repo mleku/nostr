@@ -10,7 +10,7 @@ require (
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
 	github.com/stretchr/testify v1.9.0
 	github.com/templexxx/xhex v0.0.0-20200614015412-aed53437177b
-	golang.org/x/crypto v0.25.0
+	golang.org/x/crypto v0.26.0
 	lukechampine.com/frand v1.4.2
 	util.mleku.dev v1.0.0
 )
@@ -31,6 +31,6 @@ require (
 	github.com/templexxx/cpu v0.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.55.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

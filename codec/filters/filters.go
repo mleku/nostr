@@ -24,7 +24,7 @@ func (f *T) GetFingerprints() (fps []uint64, err E) {
 
 func (f *T) Len() int { return len(f.F) }
 
-func New() (f *T) { return &T{} }
+func New(ff ...*filter.T) (f *T) { return &T{F: ff} }
 
 func (f *T) Match(event *event.T) bool {
 	for _, f := range f.F {

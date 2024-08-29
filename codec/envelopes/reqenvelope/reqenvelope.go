@@ -43,9 +43,11 @@ func (en *T) MarshalJSON(dst B) (b B, err error) {
 			if o, err = en.Subscription.MarshalJSON(o); chk.E(err) {
 				return
 			}
-			o = append(o, ',')
-			if o, err = en.Filters.MarshalJSON(o); chk.E(err) {
-				return
+			for _, f := range en.Filters.F {
+				o = append(o, ',')
+				if o, err = f.MarshalJSON(o); chk.E(err) {
+					return
+				}
 			}
 			log.I.S(en.Filters)
 			return
@@ -69,6 +71,14 @@ func (en *T) UnmarshalJSON(b B) (r B, err error) {
 		return
 	}
 	if r, err = envelopes.SkipToTheEnd(r); chk.E(err) {
+		return
+	}
+	return
+}
+
+func (en *T) Parse(b B) (t *T, rem B, err E) {
+	t = New()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
 		return
 	}
 	return

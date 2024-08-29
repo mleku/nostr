@@ -209,7 +209,7 @@ func (t *T) MarshalTo(dst B) []byte {
 func (t *T) MarshalJSON(dst B) (b B, err error) {
 	b = dst
 	b = append(b, '[')
-	if t.T == nil {
+	if t == nil || t.T == nil {
 		b = append(b, ']')
 		return
 	}

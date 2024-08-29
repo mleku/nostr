@@ -21,6 +21,7 @@ var _ enveloper.I = (*T)(nil)
 func New() *T                                { return &T{Subscription: subscriptionid.NewStd()} }
 func NewFrom(id *subscriptionid.T, msg B) *T { return &T{Subscription: id, Reason: msg} }
 func (en *T) Label() string                  { return L }
+func (en *T) ReasonString() string           { return S(en.Reason) }
 
 func (en *T) Write(w io.Writer) (err E) {
 	var b B
@@ -60,6 +61,14 @@ func (en *T) UnmarshalJSON(b B) (r B, err error) {
 		return
 	}
 	if r, err = envelopes.SkipToTheEnd(r); chk.E(err) {
+		return
+	}
+	return
+}
+
+func Parse(b B) (t *T, rem B, err E) {
+	t = New()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
 		return
 	}
 	return

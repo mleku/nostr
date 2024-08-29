@@ -13,6 +13,10 @@ includes the bech32 and base58check libraries. And the messy precomputed
 values are upgraded to use the modern "embed" enabling a faster app startup 
 for initialising this array (at the cost of a little more binary size).
 
+For ubuntu, you need these
+
+    sudo apt -y install build-essential autoconf libtool  
+
 The directory `pkg/libsecp256k1/secp256k1` needs to be initialized and built
 and installed, like so:
 

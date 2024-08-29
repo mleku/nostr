@@ -55,6 +55,14 @@ func (en *Challenge) UnmarshalJSON(b B) (r B, err E) {
 	return
 }
 
+func ParseChallenge(b B) (t *Challenge, rem B, err E) {
+	t = NewChallenge()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+		return
+	}
+	return
+}
+
 type Response struct {
 	Event *event.T
 }
@@ -96,6 +104,14 @@ func (en *Response) UnmarshalJSON(b B) (r B, err E) {
 		return
 	}
 	if r, err = envs.SkipToTheEnd(r); chk.E(err) {
+		return
+	}
+	return
+}
+
+func ParseResponse(b B) (t *Response, rem B, err E) {
+	t = NewResponse()
+	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
 		return
 	}
 	return
