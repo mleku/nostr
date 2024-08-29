@@ -5,6 +5,7 @@ package p256k
 import "C"
 import (
 	"crypto/rand"
+	. "nostr.mleku.dev"
 	"unsafe"
 
 	"ec.mleku.dev/v2/schnorr"
@@ -46,7 +47,7 @@ func GetRandom() (u *Uchar) {
 
 func AssertLen(b B, length int, name string) (err E) {
 	if len(b) != length {
-		err = errorf.E("%s should be %d bytes, got %d", name, length, len(b))
+		err = Errorf.E("%s should be %d bytes, got %d", name, length, len(b))
 	}
 	return
 }
@@ -75,7 +76,7 @@ type Sec struct {
 }
 
 func GenSec() (sec *Sec, err E) {
-	if _, _, sec, _, _, err = Generate(); chk.E(err) {
+	if _, _, sec, _, _, err = Generate(); Chk.E(err) {
 		return
 	}
 	return
@@ -84,7 +85,7 @@ func GenSec() (sec *Sec, err E) {
 func SecFromBytes(sk B) (sec *Sec, err E) {
 	sec = new(Sec)
 	if C.secp256k1_keypair_create(ctx, &sec.Key, ToUchar(sk)) != 1 {
-		err = errorf.E("failed to parse private key")
+		err = Errorf.E("failed to parse private key")
 		return
 	}
 	return
@@ -95,7 +96,7 @@ func (s *Sec) Sec() *SecKey { return &s.Key }
 func (s *Sec) Pub() (p *Pub, err E) {
 	p = new(Pub)
 	if C.secp256k1_keypair_xonly_pub(ctx, &p.Key, nil, s.Sec()) != 1 {
-		err = errorf.E("pubkey derivation failed")
+		err = Errorf.E("pubkey derivation failed")
 		return
 	}
 	return
@@ -134,18 +135,18 @@ func FromSecretBytes(skb B) (pkb B, sec *Sec, pub *XPublicKey, ecPub *PublicKey,
 	uskb := ToUchar(skb)
 	res := C.secp256k1_keypair_create(ctx, &sec.Key, uskb)
 	if res != 1 {
-		err = errorf.E("failed to create secp256k1 keypair")
+		err = Errorf.E("failed to create secp256k1 keypair")
 		return
 	}
 	C.secp256k1_keypair_pub(ctx, ecPub.Key, &sec.Key)
 	C.secp256k1_ec_pubkey_serialize(ctx, ToUchar(ecpkb), &clen, ecPub.Key, C.SECP256K1_EC_COMPRESSED)
 	// if ecpkb[0] != 2 {
-	// log.W.F("odd pubkey from %0x -> %0x", skb, ecpkb)
+	// Log.W.F("odd pubkey from %0x -> %0x", skb, ecpkb)
 	// 	Negate(skb)
 	// 	uskb = ToUchar(skb)
 	// 	res = C.secp256k1_keypair_create(ctx, &sec.Key, uskb)
 	// 	if res != 1 {
-	// 		err = errorf.E("failed to create secp256k1 keypair")
+	// 		err = Errorf.E("failed to create secp256k1 keypair")
 	// 		return
 	// 	}
 	// 	C.secp256k1_keypair_pub(ctx, ecPub.Key, &sec.Key)
@@ -154,7 +155,7 @@ func FromSecretBytes(skb B) (pkb B, sec *Sec, pub *XPublicKey, ecPub *PublicKey,
 	// 	err = errors.New("provided secret generates a public key with odd Y coordinate, fixed version returned")
 	// }
 	C.secp256k1_keypair_xonly_pub(ctx, pub.Key, &parity, &sec.Key)
-	// log.I.S(sec, ecPub, pub)
+	// Log.I.S(sec, ecPub, pub)
 	pkb = ecpkb
 	return
 }
@@ -173,12 +174,12 @@ func Generate() (skb, pkb B, sec *Sec, pub *XPublicKey, ecpub *PublicKey, err E)
 	pub = NewXPublicKey()
 	sec = &Sec{}
 	for {
-		if _, err = rand.Read(skb); chk.E(err) {
+		if _, err = rand.Read(skb); Chk.E(err) {
 			return
 		}
 		uskb := ToUchar(skb)
 		if res := C.secp256k1_keypair_create(ctx, &sec.Key, uskb); res != 1 {
-			err = errorf.E("failed to create secp256k1 keypair")
+			err = Errorf.E("failed to create secp256k1 keypair")
 			return
 		}
 		C.secp256k1_keypair_pub(ctx, ecpub.Key, &sec.Key)
@@ -210,15 +211,15 @@ type ECPub struct {
 //
 // This function is for the purpose of getting a key to do ECDH from an x-only key.
 func ECPubFromSchnorrBytes(xkb B) (pub *ECPub, err E) {
-	if err = AssertLen(xkb, schnorr.PubKeyBytesLen, "pubkey"); chk.E(err) {
+	if err = AssertLen(xkb, schnorr.PubKeyBytesLen, "pubkey"); Chk.E(err) {
 		return
 	}
 	pub = &ECPub{}
 	p := append(B{0x02}, xkb...)
 	if C.secp256k1_ec_pubkey_parse(ctx, &pub.Key, ToUchar(p),
 		secp256k1.PubKeyBytesLenCompressed) != 1 {
-		err = errorf.E("failed to parse pubkey from %0x", p)
-		log.I.S(pub)
+		err = Errorf.E("failed to parse pubkey from %0x", p)
+		Log.I.S(pub)
 		return
 	}
 	return
@@ -226,13 +227,13 @@ func ECPubFromSchnorrBytes(xkb B) (pub *ECPub, err E) {
 
 // ECPubFromBytes parses a pubkey from 33 bytes to the bitcoin-core/secp256k1 struct.
 func ECPubFromBytes(pkb B) (pub *ECPub, err E) {
-	if err = AssertLen(pkb, secp256k1.PubKeyBytesLenCompressed, "pubkey"); chk.E(err) {
+	if err = AssertLen(pkb, secp256k1.PubKeyBytesLenCompressed, "pubkey"); Chk.E(err) {
 		return
 	}
 	pub = &ECPub{}
 	if C.secp256k1_ec_pubkey_parse(ctx, &pub.Key, ToUchar(pkb), secp256k1.PubKeyBytesLenCompressed) != 1 {
-		err = errorf.E("failed to parse pubkey from %0x", pkb)
-		log.I.S(pub)
+		err = Errorf.E("failed to parse pubkey from %0x", pkb)
+		Log.I.S(pub)
 		return
 	}
 	return
@@ -243,12 +244,12 @@ type Pub struct {
 }
 
 func PubFromBytes(pk B) (pub *Pub, err E) {
-	if err = AssertLen(pk, schnorr.PubKeyBytesLen, "pubkey"); chk.E(err) {
+	if err = AssertLen(pk, schnorr.PubKeyBytesLen, "pubkey"); Chk.E(err) {
 		return
 	}
 	pub = new(Pub)
 	if C.secp256k1_xonly_pubkey_parse(ctx, &pub.Key, ToUchar(pk)) != 1 {
-		err = errorf.E("failed to parse pubkey from %0x", pk)
+		err = Errorf.E("failed to parse pubkey from %0x", pk)
 		return
 	}
 	return
@@ -265,7 +266,7 @@ func (p *Pub) Pub() *PubKey { return &p.Key }
 func (p *Pub) ToBytes() (b B, err E) {
 	b = make(B, schnorr.PubKeyBytesLen)
 	if C.secp256k1_xonly_pubkey_serialize(ctx, ToUchar(b), p.Pub()) != 1 {
-		err = errorf.E("pubkey serialize failed")
+		err = Errorf.E("pubkey serialize failed")
 		return
 	}
 	return
@@ -276,7 +277,7 @@ func Sign(msg *Uchar, sk *SecKey) (sig B, err E) {
 	c := CreateRandomContext()
 	if C.secp256k1_schnorrsig_sign32(c, ToUchar(sig), msg, sk,
 		GetRandom()) != 1 {
-		err = errorf.E("failed to sign message")
+		err = Errorf.E("failed to sign message")
 		return
 	}
 	return
@@ -284,18 +285,18 @@ func Sign(msg *Uchar, sk *SecKey) (sig B, err E) {
 
 func SignFromBytes(msg, sk B) (sig B, err E) {
 	var umsg *Uchar
-	if umsg, err = Msg(msg); chk.E(err) {
+	if umsg, err = Msg(msg); Chk.E(err) {
 		return
 	}
 	var sec *Sec
-	if sec, err = SecFromBytes(sk); chk.E(err) {
+	if sec, err = SecFromBytes(sk); Chk.E(err) {
 		return
 	}
 	return Sign(umsg, sec.Sec())
 }
 
 func Msg(b B) (id *Uchar, err E) {
-	if err = AssertLen(b, sha256.Size, "id"); chk.E(err) {
+	if err = AssertLen(b, sha256.Size, "id"); Chk.E(err) {
 		return
 	}
 	id = ToUchar(b)
@@ -303,7 +304,7 @@ func Msg(b B) (id *Uchar, err E) {
 }
 
 func Sig(b B) (sig *Uchar, err E) {
-	if err = AssertLen(b, schnorr.SignatureSize, "sig"); chk.E(err) {
+	if err = AssertLen(b, schnorr.SignatureSize, "sig"); Chk.E(err) {
 		return
 	}
 	sig = ToUchar(b)
@@ -316,19 +317,19 @@ func Verify(msg, sig *Uchar, pk *PubKey) (valid bool) {
 
 func VerifyFromBytes(msg, sig, pk B) (err error) {
 	var umsg, usig *Uchar
-	if umsg, err = Msg(msg); chk.E(err) {
+	if umsg, err = Msg(msg); Chk.E(err) {
 		return
 	}
-	if usig, err = Sig(sig); chk.E(err) {
+	if usig, err = Sig(sig); Chk.E(err) {
 		return
 	}
 	var pub *Pub
-	if pub, err = PubFromBytes(pk); chk.E(err) {
+	if pub, err = PubFromBytes(pk); Chk.E(err) {
 		return
 	}
 	valid := Verify(umsg, usig, pub.Pub())
 	if !valid {
-		err = errorf.E("failed to verify signature")
+		err = Errorf.E("failed to verify signature")
 	}
 	return
 }
@@ -371,11 +372,11 @@ func NewKeygen() (k *Keygen) {
 //
 // The first byte of pubBytes must be sliced off before deriving the hex/Bech32 forms of the nostr public key.
 func (k *Keygen) Generate() (pubBytes B, err E) {
-	if _, err = rand.Read(k.secBytes); chk.E(err) {
+	if _, err = rand.Read(k.secBytes); Chk.E(err) {
 		return
 	}
 	if res := C.secp256k1_keypair_create(ctx, &k.sec.Key, k.secUchar); res != 1 {
-		err = errorf.E("failed to create secp256k1 keypair")
+		err = Errorf.E("failed to create secp256k1 keypair")
 		return
 	}
 	C.secp256k1_keypair_pub(ctx, k.ecpub.Key, &k.sec.Key)

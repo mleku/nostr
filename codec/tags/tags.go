@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	. "nostr.mleku.dev"
 	"sort"
 
 	"nostr.mleku.dev/codec/tag"
@@ -157,7 +158,7 @@ func (t *T) Scan(src any) (err error) {
 		return errors.New("couldn't scan tag, it's not a json string")
 	}
 	err = json.Unmarshal(jtags, &t)
-	chk.E(err)
+	Chk.E(err)
 	return
 }
 
@@ -167,11 +168,11 @@ func (t *T) ContainsAny(tagName B, values ...B) bool {
 		if v.Len() < 2 {
 			continue
 		}
-		if !equals(v.Key(), tagName) {
+		if !Equals(v.Key(), tagName) {
 			continue
 		}
 		for _, candidate := range values {
-			if equals(v.Value(), candidate) {
+			if Equals(v.Value(), candidate) {
 				return true
 			}
 		}
@@ -248,7 +249,7 @@ func (t *T) UnmarshalJSON(b B) (r B, err error) {
 			switch r[0] {
 			case '[':
 				tt := &tag.T{}
-				if r, err = tt.UnmarshalJSON(r); chk.E(err) {
+				if r, err = tt.UnmarshalJSON(r); Chk.E(err) {
 					return
 				}
 				t.T = append(t.T, tt)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
 	"ec.mleku.dev/v2/secp256k1"
@@ -88,7 +89,7 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 			first = true
 		}
 		dst = text.JSONKey(dst, Kinds)
-		if dst, err = f.Kinds.MarshalJSON(dst); chk.E(err) {
+		if dst, err = f.Kinds.MarshalJSON(dst); Chk.E(err) {
 			return
 		}
 	}
@@ -108,7 +109,7 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 			first = true
 		}
 		dst = text.JSONKey(dst, Since)
-		if dst, err = f.Since.MarshalJSON(dst); chk.E(err) {
+		if dst, err = f.Since.MarshalJSON(dst); Chk.E(err) {
 			return
 		}
 	}
@@ -119,7 +120,7 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 			first = true
 		}
 		dst = text.JSONKey(dst, Until)
-		if dst, err = f.Until.MarshalJSON(dst); chk.E(err) {
+		if dst, err = f.Until.MarshalJSON(dst); Chk.E(err) {
 			return
 		}
 	}
@@ -130,7 +131,7 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 			first = true
 		}
 		dst = text.JSONKey(dst, Limit)
-		if dst, err = ints.New(f.Limit).MarshalJSON(dst); chk.E(err) {
+		if dst, err = ints.New(f.Limit).MarshalJSON(dst); Chk.E(err) {
 			return
 		}
 	}
@@ -172,22 +173,22 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 	var key B
 	var state int
 	for ; len(r) >= 0; r = r[1:] {
-		// log.I.F("%c", rem[0])
+		// Log.I.F("%c", rem[0])
 		switch state {
 		case beforeOpen:
 			if r[0] == '{' {
 				state = openParen
-				// log.I.Ln("openParen")
+				// Log.I.Ln("openParen")
 			}
 		case openParen:
 			if r[0] == '"' {
 				state = inKey
-				// log.I.Ln("inKey")
+				// Log.I.Ln("inKey")
 			}
 		case inKey:
 			if r[0] == '"' {
 				state = inKV
-				// log.I.Ln("inKV")
+				// Log.I.Ln("inKV")
 			} else {
 				key = append(key, r[0])
 			}
@@ -197,7 +198,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 			}
 		case inVal:
 			if len(key) < 1 {
-				err = errorf.E("filter key zero length: '%s'\n'%s", b, r)
+				err = Errorf.E("filter key zero length: '%s'\n'%s", b, r)
 				return
 			}
 			switch key[0] {
@@ -208,7 +209,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					// the tags must all be 64 character hexadecimal
 					var ff []B
 					if ff, r, err = text.UnmarshalHexArray(r,
-						sha256.Size); chk.E(err) {
+						sha256.Size); Chk.E(err) {
 						return
 					}
 					ff = append([]B{key}, ff...)
@@ -216,7 +217,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 				default:
 					// other types of tags can be anything
 					var ff []B
-					if ff, r, err = text.UnmarshalStringArray(r); chk.E(err) {
+					if ff, r, err = text.UnmarshalStringArray(r); Chk.E(err) {
 						return
 					}
 					ff = append([]B{key}, ff...)
@@ -229,7 +230,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 				}
 				var ff []B
 				if ff, r, err = text.UnmarshalHexArray(r,
-					sha256.Size); chk.E(err) {
+					sha256.Size); Chk.E(err) {
 					return
 				}
 				f.IDs = tag.New(ff...)
@@ -239,7 +240,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					goto invalid
 				}
 				f.Kinds = kinds.NewWithCap(0)
-				if r, err = f.Kinds.UnmarshalJSON(r); chk.E(err) {
+				if r, err = f.Kinds.UnmarshalJSON(r); Chk.E(err) {
 					return
 				}
 				state = betweenKV
@@ -248,7 +249,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					goto invalid
 				}
 				var ff []B
-				if ff, r, err = text.UnmarshalHexArray(r, schnorr.PubKeyBytesLen); chk.E(err) {
+				if ff, r, err = text.UnmarshalHexArray(r, schnorr.PubKeyBytesLen); Chk.E(err) {
 					return
 				}
 				f.Authors = tag.New(ff...)
@@ -258,7 +259,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					goto invalid
 				}
 				u := ints.New(0)
-				if r, err = u.UnmarshalJSON(r); chk.E(err) {
+				if r, err = u.UnmarshalJSON(r); Chk.E(err) {
 					return
 				}
 				f.Until = timestamp.FromUnix(int64(u.N))
@@ -268,7 +269,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					goto invalid
 				}
 				l := ints.New(0)
-				if r, err = l.UnmarshalJSON(r); chk.E(err) {
+				if r, err = l.UnmarshalJSON(r); Chk.E(err) {
 					return
 				}
 				f.Limit = int(l.N)
@@ -283,24 +284,24 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 						goto invalid
 					}
 					var txt B
-					if txt, r, err = text.UnmarshalQuoted(r); chk.E(err) {
+					if txt, r, err = text.UnmarshalQuoted(r); Chk.E(err) {
 						return
 					}
 					f.Search = txt
-					// log.I.F("\n%s\n%s", txt, rem)
+					// Log.I.F("\n%s\n%s", txt, rem)
 					state = betweenKV
-					// log.I.Ln("betweenKV")
+					// Log.I.Ln("betweenKV")
 				case Since[1]:
 					if len(key) < len(Since) {
 						goto invalid
 					}
 					s := ints.New(0)
-					if r, err = s.UnmarshalJSON(r); chk.E(err) {
+					if r, err = s.UnmarshalJSON(r); Chk.E(err) {
 						return
 					}
 					f.Since = timestamp.FromUnix(int64(s.N))
 					state = betweenKV
-					// log.I.Ln("betweenKV")
+					// Log.I.Ln("betweenKV")
 				}
 			default:
 				goto invalid
@@ -312,14 +313,14 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 			}
 			if r[0] == '}' {
 				state = afterClose
-				// log.I.Ln("afterClose")
+				// Log.I.Ln("afterClose")
 				// rem = rem[1:]
 			} else if r[0] == ',' {
 				state = openParen
-				// log.I.Ln("openParen")
+				// Log.I.Ln("openParen")
 			} else if r[0] == '"' {
 				state = inKey
-				// log.I.Ln("inKey")
+				// Log.I.Ln("inKey")
 			}
 		}
 		if len(r) == 0 {
@@ -331,25 +332,25 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 		}
 	}
 invalid:
-	err = errorf.E("invalid key,\n'%s'\n'%s'", S(b), S(r))
+	err = Errorf.E("invalid key,\n'%s'\n'%s'", S(b), S(r))
 	return
 }
 
 func (f *T) Matches(ev *event.T) bool {
 	if ev == nil {
-		// log.T.F("nil event")
+		// Log.T.F("nil event")
 		return false
 	}
 	if f.IDs != nil && len(f.IDs.Field) > 0 && !f.IDs.Contains(ev.ID) {
-		// log.T.F("no ids in filter match event\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+		// Log.T.F("no ids in filter match event\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
 	if f.Kinds != nil && len(f.Kinds.K) > 0 && !f.Kinds.Contains(ev.Kind) {
-		// log.T.F("no matching kinds in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+		// Log.T.F("no matching kinds in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
 	if f.Authors != nil && len(f.Authors.Field) > 0 && !f.Authors.Contains(ev.PubKey) {
-		// log.T.F("no matching authors in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+		// Log.T.F("no matching authors in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
 	if f.Tags != nil {
@@ -359,18 +360,18 @@ func (f *T) Matches(ev *event.T) bool {
 				f.Tags.T[i].Field[0] = f.Tags.T[i].Field[0][1:]
 			}
 			if len(v.Field) > 0 && !ev.Tags.ContainsAny(v.Field[0], v.ToByteSlice()...) {
-				// log.T.F("no matching tags in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+				// Log.T.F("no matching tags in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 				return false
 			}
 			// special case for p tags
 		}
 	}
 	if f.Since != nil && f.Since.Int() != 0 && ev.CreatedAt != nil && ev.CreatedAt.I64() < f.Since.I64() {
-		// log.T.F("event is older than since\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+		// Log.T.F("event is older than since\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
 	if f.Until != nil && f.Until.Int() != 0 && ev.CreatedAt.I64() > f.Until.I64() {
-		// log.T.F("event is newer than until\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
+		// Log.T.F("event is newer than until\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
 	return true
@@ -386,7 +387,7 @@ func (f *T) Fingerprint() (fp uint64, err E) {
 	lim := f.Limit
 	f.Limit = 0
 	var b B
-	if b, err = f.MarshalJSON(b); chk.E(err) {
+	if b, err = f.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	h := sha256.Sum256(b)
@@ -414,7 +415,7 @@ func Equal(a, b *T) bool {
 		len(a.Tags.T) != len(b.Tags.T) ||
 		!arePointerValuesEqual(a.Since, b.Since) ||
 		!arePointerValuesEqual(a.Until, b.Until) ||
-		!equals(a.Search, b.Search) ||
+		!Equals(a.Search, b.Search) ||
 		!a.Tags.Equal(b.Tags) {
 		return false
 	}
@@ -436,7 +437,7 @@ func GenFilter() (f *T, err error) {
 	n = frand.Intn(16)
 	for _ = range n {
 		var sk *secp256k1.SecretKey
-		if sk, err = secp256k1.GenerateSecretKey(); chk.E(err) {
+		if sk, err = secp256k1.GenerateSecretKey(); Chk.E(err) {
 			return
 		}
 		pk := sk.PubKey()

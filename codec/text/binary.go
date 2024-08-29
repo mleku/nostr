@@ -2,6 +2,7 @@ package text
 
 import (
 	"encoding/binary"
+	. "nostr.mleku.dev"
 )
 
 // AppendBinary is a straight append with length prefix.
@@ -23,11 +24,11 @@ func AppendBinary(dst, src B) (b B) {
 func ExtractBinary(b B) (str, rem B, err error) {
 	l, read := binary.Uvarint(b)
 	if read < 1 {
-		err = errorf.E("failed to read uvarint length prefix")
+		err = Errorf.E("failed to read uvarint length prefix")
 		return
 	}
 	if len(b) < int(l)+read {
-		err = errorf.E("insufficient data in buffer, require %d have %d",
+		err = Errorf.E("insufficient data in buffer, require %d have %d",
 			int(l)+read, len(b))
 		return
 	}

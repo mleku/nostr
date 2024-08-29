@@ -3,7 +3,7 @@ package event
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
 	"github.com/minio/sha256-simd"
@@ -96,7 +96,7 @@ func (w *Writer) Len() int { return len(w.Buf) }
 
 func (w *Writer) WriteID(id B) (err E) {
 	if len(id) != sha256.Size {
-		err = errorf.E("wrong size, require %d got %d", sha256.Size, len(id))
+		err = Errorf.E("wrong size, require %d got %d", sha256.Size, len(id))
 		return
 	}
 	w.Buf = append(w.Buf, id...)
@@ -105,7 +105,7 @@ func (w *Writer) WriteID(id B) (err E) {
 
 func (w *Writer) WritePubKey(pk B) (err E) {
 	if len(pk) != schnorr.PubKeyBytesLen {
-		err = errorf.E("wrong size, require %d got %d",
+		err = Errorf.E("wrong size, require %d got %d",
 			schnorr.PubKeyBytesLen, len(pk))
 		return
 	}
@@ -151,16 +151,16 @@ func (w *Writer) WriteTags(t *tags.T) (err E) {
 				for k := range DecimalHexInSecond {
 					if ts[0] == DecimalHexInSecond[k] {
 						secondIsDecimalHex = true
-						// log.I.Ln("second is decimal:hex:string")
+						// Log.I.Ln("second is decimal:hex:string")
 					}
 				}
 			case j == 1:
 				switch {
 				case secondIsHex:
 					w.Buf = appendUvarint(w.Buf, uint64(32))
-					if w.Buf, err = hex.DecAppend(w.Buf, ts); chk.E(err) {
+					if w.Buf, err = hex.DecAppend(w.Buf, ts); Chk.E(err) {
 						// the value MUST be hex by the spec
-						log.W.Ln(t.T[i])
+						Log.W.Ln(t.T[i])
 						return
 					}
 					continue scanning
@@ -170,12 +170,12 @@ func (w *Writer) WriteTags(t *tags.T) (err E) {
 					// first is 2 bytes size
 					var n int
 					k := kind.New(0)
-					if _, err = k.UnmarshalJSON(split[0]); chk.E(err) {
+					if _, err = k.UnmarshalJSON(split[0]); Chk.E(err) {
 						return
 					}
 					// second is a 32 byte value encoded in hex
 					if len(split[1]) != 64 {
-						err = fmt.Errorf("invalid length event ID in `a` tag: %d",
+						err = Errorf.E("invalid length event ID in `a` tag: %d",
 							len(split[1]))
 						return
 					}
@@ -186,7 +186,7 @@ func (w *Writer) WriteTags(t *tags.T) (err E) {
 					w.Buf = binary.LittleEndian.
 						AppendUint16(w.Buf, uint16(n))
 					// encode the 32 byte binary value
-					if w.Buf, err = hex.DecAppend(w.Buf, split[1]); chk.E(err) {
+					if w.Buf, err = hex.DecAppend(w.Buf, split[1]); Chk.E(err) {
 						return
 					}
 					w.Buf = append(w.Buf, split[2]...)
@@ -208,7 +208,7 @@ func (w *Writer) WriteContent(s B) (err error) {
 
 func (w *Writer) WriteSignature(sig B) (err error) {
 	if len(sig) != schnorr.SignatureSize {
-		err = errorf.E("wrong size, require %d got %d",
+		err = Errorf.E("wrong size, require %d got %d",
 			schnorr.SignatureSize, len(sig))
 		return
 	}
@@ -217,25 +217,25 @@ func (w *Writer) WriteSignature(sig B) (err error) {
 }
 
 func (w *Writer) WriteEvent(ev *T) (err error) {
-	if err = w.WriteID(ev.ID); chk.E(err) {
+	if err = w.WriteID(ev.ID); Chk.E(err) {
 		return
 	}
-	if err = w.WritePubKey(ev.PubKey); chk.E(err) {
+	if err = w.WritePubKey(ev.PubKey); Chk.E(err) {
 		return
 	}
-	if err = w.WriteCreatedAt(ev.CreatedAt); chk.E(err) {
+	if err = w.WriteCreatedAt(ev.CreatedAt); Chk.E(err) {
 		return
 	}
-	if err = w.WriteKind(ev.Kind); chk.E(err) {
+	if err = w.WriteKind(ev.Kind); Chk.E(err) {
 		return
 	}
-	if err = w.WriteTags(ev.Tags); chk.E(err) {
+	if err = w.WriteTags(ev.Tags); Chk.E(err) {
 		return
 	}
-	if err = w.WriteContent(ev.Content); chk.E(err) {
+	if err = w.WriteContent(ev.Content); Chk.E(err) {
 		return
 	}
-	if err = w.WriteSignature(ev.Sig); chk.E(err) {
+	if err = w.WriteSignature(ev.Sig); Chk.E(err) {
 		return
 	}
 	return

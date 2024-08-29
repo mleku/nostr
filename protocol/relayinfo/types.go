@@ -3,6 +3,7 @@ package relayinfo
 import (
 	"encoding/json"
 	"errors"
+	. "nostr.mleku.dev"
 	"os"
 	"sync"
 
@@ -249,10 +250,10 @@ func NewInfo(inf *T) (info *T) {
 func (ri *T) Clone() (r2 *T, err E) {
 	r2 = new(T)
 	var b []byte
-	if b, err = json.Marshal(ri); chk.E(err) {
+	if b, err = json.Marshal(ri); Chk.E(err) {
 		return
 	}
-	if err = json.Unmarshal(b, r2); chk.E(err) {
+	if err = json.Unmarshal(b, r2); Chk.E(err) {
 		return
 	}
 	return
@@ -284,14 +285,14 @@ func (ri *T) HasNIP(n int) (ok bool) {
 func (ri *T) Save(filename string) (err error) {
 	if ri == nil {
 		err = errors.New("cannot save nil relay info document")
-		log.E.Ln(err)
+		Log.E.Ln(err)
 		return
 	}
 	var b []byte
-	if b, err = json.MarshalIndent(ri, "", "    "); chk.E(err) {
+	if b, err = json.MarshalIndent(ri, "", "    "); Chk.E(err) {
 		return
 	}
-	if err = os.WriteFile(filename, b, 0600); chk.E(err) {
+	if err = os.WriteFile(filename, b, 0600); Chk.E(err) {
 		return
 	}
 	return
@@ -301,15 +302,15 @@ func (ri *T) Save(filename string) (err error) {
 func (ri *T) Load(filename string) (err error) {
 	if ri == nil {
 		err = errors.New("cannot load into nil config")
-		log.E.Ln(err)
+		Log.E.Ln(err)
 		return
 	}
 	var b []byte
-	if b, err = os.ReadFile(filename); chk.E(err) {
+	if b, err = os.ReadFile(filename); Chk.E(err) {
 		return
 	}
-	// log.T.F("relay information document\n%s", string(b))
-	if err = json.Unmarshal(b, ri); chk.E(err) {
+	// Log.T.F("relay information document\n%s", string(b))
+	if err = json.Unmarshal(b, ri); Chk.E(err) {
 		return
 	}
 	return

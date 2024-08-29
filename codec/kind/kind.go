@@ -1,6 +1,7 @@
 package kind
 
 import (
+	. "nostr.mleku.dev"
 	"sync"
 
 	"util.mleku.dev/ints"
@@ -53,7 +54,7 @@ func (k *T) MarshalJSON(dst B) (b B, err E) { return ints.New(k.ToU64()).Marshal
 
 func (k *T) UnmarshalJSON(b B) (r B, err E) {
 	n := ints.New(0)
-	if r, err = n.UnmarshalJSON(b); chk.E(err) {
+	if r, err = n.UnmarshalJSON(b); Chk.E(err) {
 		return
 	}
 	k.K = n.Uint16()

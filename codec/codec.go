@@ -2,6 +2,10 @@
 // types that allows proper integration with zero-copy and allocation pools
 package codec
 
+import (
+	. "nostr.mleku.dev"
+)
+
 type JSON interface {
 	// MarshalJSON converts the data of the type into JSON, appending it to the
 	// provided slice and returning the extended slice.

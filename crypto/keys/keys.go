@@ -1,6 +1,7 @@
 package keys
 
 import (
+	. "nostr.mleku.dev"
 	"strings"
 
 	"ec.mleku.dev/v2"
@@ -15,7 +16,7 @@ func GenerateSecretKeyHex() (sks B) {
 	var err E
 	var skb B
 	signer := &p256k.Signer{}
-	if err = signer.Generate(); chk.E(err) {
+	if err = signer.Generate(); Chk.E(err) {
 		return
 	}
 	skb = signer.Sec()
@@ -25,24 +26,12 @@ func GenerateSecretKeyHex() (sks B) {
 
 func GetPublicKeyHex(sk S) (S, E) {
 	b, err := hex.Dec(sk)
-	if chk.E(err) {
+	if Chk.E(err) {
 		return "", err
 	}
 	_, pk := btcec.PrivKeyFromBytes(b)
 	return hex.Enc(schnorr.SerializePubKey(pk)), nil
 }
-
-// func GetPublicKeyHex(sk S) (pk S, err E) {
-// 	if !IsValid32ByteHex(sk) {
-// 		err = errorf.E("invalid key %s", sk)
-// 		return
-// 	}
-// 	var b B
-// 	if b, err = hex.Dec(sk); chk.E(err) {
-// 		return
-// 	}
-// 	return SecretBytesToPubKeyHex(b)
-// }
 
 func SecretBytesToPubKeyHex(skb B) (pk S, err E) {
 	_, pkk := btcec.SecKeyFromBytes(skb)
@@ -66,4 +55,8 @@ func IsValidPublicKey(pk string) bool {
 	v, _ := hex.Dec(pk)
 	_, err := schnorr.ParsePubKey(v)
 	return err == nil
+}
+
+func HexPubkeyToBytes[V B | S](hpk V) (pkb B, err E) {
+	return hex.DecAppend(nil, B(hpk))
 }

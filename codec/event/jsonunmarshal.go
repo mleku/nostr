@@ -2,6 +2,7 @@ package event
 
 import (
 	"io"
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
 	"github.com/minio/sha256-simd"
@@ -49,63 +50,63 @@ InKV:
 InVal:
 	switch key[0] {
 	case jId[0]:
-		if !equals(jId, key) {
+		if !Equals(jId, key) {
 			goto invalid
 		}
 		var id B
-		if id, r, err = text.UnmarshalHex(r); chk.E(err) {
+		if id, r, err = text.UnmarshalHex(r); Chk.E(err) {
 			return
 		}
 		if len(id) != sha256.Size {
-			err = errorf.E("invalid ID, require %d got %d", sha256.Size,
+			err = Errorf.E("invalid ID, require %d got %d", sha256.Size,
 				len(id))
 			return
 		}
 		ev.ID = id
 		goto BetweenKV
 	case jPubkey[0]:
-		if !equals(jPubkey, key) {
+		if !Equals(jPubkey, key) {
 			goto invalid
 		}
 		var pk B
-		if pk, r, err = text.UnmarshalHex(r); chk.E(err) {
+		if pk, r, err = text.UnmarshalHex(r); Chk.E(err) {
 			return
 		}
 		if len(pk) != schnorr.PubKeyBytesLen {
-			err = errorf.E("invalid pubkey, require %d got %d",
+			err = Errorf.E("invalid pubkey, require %d got %d",
 				schnorr.PubKeyBytesLen, len(pk))
 			return
 		}
 		ev.PubKey = pk
 		goto BetweenKV
 	case jKind[0]:
-		if !equals(jKind, key) {
+		if !Equals(jKind, key) {
 			goto invalid
 		}
 		ev.Kind = kind.New(0)
-		if r, err = ev.Kind.UnmarshalJSON(r); chk.E(err) {
+		if r, err = ev.Kind.UnmarshalJSON(r); Chk.E(err) {
 			return
 		}
 		goto BetweenKV
 	case jTags[0]:
-		if !equals(jTags, key) {
+		if !Equals(jTags, key) {
 			goto invalid
 		}
 		ev.Tags = tags.New()
-		if r, err = ev.Tags.UnmarshalJSON(r); chk.E(err) {
+		if r, err = ev.Tags.UnmarshalJSON(r); Chk.E(err) {
 			return
 		}
 		goto BetweenKV
 	case jSig[0]:
-		if !equals(jSig, key) {
+		if !Equals(jSig, key) {
 			goto invalid
 		}
 		var sig B
-		if sig, r, err = text.UnmarshalHex(r); chk.E(err) {
+		if sig, r, err = text.UnmarshalHex(r); Chk.E(err) {
 			return
 		}
 		if len(sig) != schnorr.SignatureSize {
-			err = errorf.E("invalid sig length, require %d got %d '%s'",
+			err = Errorf.E("invalid sig length, require %d got %d '%s'",
 				schnorr.SignatureSize, len(sig), r)
 			return
 		}
@@ -113,19 +114,19 @@ InVal:
 		goto BetweenKV
 	case jContent[0]:
 		if key[1] == jContent[1] {
-			if !equals(jContent, key) {
+			if !Equals(jContent, key) {
 				goto invalid
 			}
-			if ev.Content, r, err = text.UnmarshalQuoted(r); chk.E(err) {
+			if ev.Content, r, err = text.UnmarshalQuoted(r); Chk.E(err) {
 				return
 			}
 			goto BetweenKV
 		} else if key[1] == jCreatedAt[1] {
-			if !equals(jCreatedAt, key) {
+			if !Equals(jCreatedAt, key) {
 				goto invalid
 			}
 			ev.CreatedAt = timestamp.New()
-			if r, err = ev.CreatedAt.UnmarshalJSON(r); chk.E(err) {
+			if r, err = ev.CreatedAt.UnmarshalJSON(r); Chk.E(err) {
 				return
 			}
 			goto BetweenKV
@@ -156,7 +157,7 @@ BetweenKV:
 AfterClose:
 	return
 invalid:
-	err = errorf.E("invalid key,\n'%s'\n'%s'\n'%s'", S(b), S(b[:len(r)]),
+	err = Errorf.E("invalid key,\n'%s'\n'%s'\n'%s'", S(b), S(b[:len(r)]),
 		S(r))
 	return
 eof:

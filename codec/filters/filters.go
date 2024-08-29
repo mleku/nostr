@@ -1,6 +1,7 @@
 package filters
 
 import (
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/event"
 	"nostr.mleku.dev/codec/filter"
 )
@@ -14,7 +15,7 @@ func Make(l int) *T { return &T{F: make([]*filter.T, l)} }
 func (f *T) GetFingerprints() (fps []uint64, err E) {
 	for _, ff := range f.F {
 		var fp uint64
-		if fp, err = ff.Fingerprint(); chk.E(err) {
+		if fp, err = ff.Fingerprint(); Chk.E(err) {
 			continue
 		}
 		fps = append(fps, fp)
@@ -38,7 +39,7 @@ func (f *T) Match(event *event.T) bool {
 func (f *T) String() (s S) {
 	var b B
 	var err E
-	if b, err = f.MarshalJSON(nil); chk.E(err) {
+	if b, err = f.MarshalJSON(nil); Chk.E(err) {
 		return
 	}
 	return S(b)
@@ -49,7 +50,7 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 	b = append(b, '[')
 	end := len(f.F) - 1
 	for i := range f.F {
-		if b, err = f.F[i].MarshalJSON(b); chk.E(err) {
+		if b, err = f.F[i].MarshalJSON(b); Chk.E(err) {
 			return
 		}
 		if i < end {
@@ -71,7 +72,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 			}
 			r = r[1:]
 			ffa := filter.New()
-			if r, err = ffa.UnmarshalJSON(r); chk.E(err) {
+			if r, err = ffa.UnmarshalJSON(r); Chk.E(err) {
 				return
 			}
 			f.F = append(f.F, ffa)
@@ -83,7 +84,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 				return
 			}
 			ffa := filter.New()
-			if r, err = ffa.UnmarshalJSON(r); chk.E(err) {
+			if r, err = ffa.UnmarshalJSON(r); Chk.E(err) {
 				return
 			}
 			f.F = append(f.F, ffa)
@@ -101,7 +102,7 @@ func GenFilters(n int) (ff *T, err error) {
 	ff = &T{}
 	for _ = range n {
 		var f *filter.T
-		if f, err = filter.GenFilter(); chk.E(err) {
+		if f, err = filter.GenFilter(); Chk.E(err) {
 			return
 		}
 		ff.F = append(ff.F, f)

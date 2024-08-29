@@ -3,7 +3,7 @@ package eventid
 import (
 	"bytes"
 	"errors"
-	"fmt"
+	. "nostr.mleku.dev"
 
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
@@ -22,7 +22,7 @@ func NewWith[V S | B](s V) (ei *T) { return &T{b: B(s)} }
 
 func (ei *T) Set(b B) (err E) {
 	if len(b) != sha256.Size {
-		err = errorf.E("ID bytes incorrect size, got %d require %d", len(b), sha256.Size)
+		err = Errorf.E("ID bytes incorrect size, got %d require %d", len(b), sha256.Size)
 		return
 	}
 	ei.b = b
@@ -31,7 +31,7 @@ func (ei *T) Set(b B) (err E) {
 
 func NewFromBytes(b B) (ei *T, err E) {
 	ei = New()
-	if err = ei.Set(b); chk.E(err) {
+	if err = ei.Set(b); Chk.E(err) {
 		return
 	}
 	return
@@ -50,7 +50,7 @@ func (ei *T) Bytes() (b B) { return ei.b }
 
 func (ei *T) Len() int {
 	if ei == nil {
-		log.W.Ln("nil event id")
+		Log.W.Ln("nil event id")
 		return 0
 	}
 	if ei.b == nil {
@@ -79,9 +79,9 @@ func (ei *T) UnmarshalJSON(b B) (err E) {
 	}
 	b = b[1 : 2*sha256.Size+1]
 	if len(b) != 2*sha256.Size {
-		err = fmt.Errorf("event ID hex incorrect size, got %d require %d",
+		err = Errorf.E("event ID hex incorrect size, got %d require %d",
 			len(b), 2*sha256.Size)
-		log.E.Ln(string(b))
+		Log.E.Ln(string(b))
 		return
 	}
 	ei.b = make([]byte, 0, sha256.Size)
@@ -93,7 +93,7 @@ func (ei *T) UnmarshalJSON(b B) (err E) {
 // hexadecimal string, returns the string coerced to the type.
 func NewFromString(s S) (ei *T, err E) {
 	if len(s) != 2*sha256.Size {
-		return nil, fmt.Errorf("event ID hex wrong size, got %d require %d",
+		return nil, Errorf.E("event ID hex wrong size, got %d require %d",
 			len(s), 2*sha256.Size)
 	}
 	ei = &T{b: make([]byte, 0, sha256.Size)}

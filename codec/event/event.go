@@ -3,12 +3,13 @@ package event
 import (
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
-	"nostr.mleku.dev"
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/eventid"
 	"nostr.mleku.dev/codec/kind"
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/text"
 	"nostr.mleku.dev/codec/timestamp"
+	"nostr.mleku.dev/crypto"
 	"util.mleku.dev/hex"
 )
 
@@ -57,15 +58,15 @@ func (ev *T) ToCanonical() (b B) {
 	b = hex.EncAppend(b, ev.PubKey)
 	b = append(b, "\","...)
 	var err error
-	if b, err = ev.CreatedAt.MarshalJSON(b); chk.E(err) {
+	if b, err = ev.CreatedAt.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	b = append(b, ',')
-	if b, err = ev.Kind.MarshalJSON(b); chk.E(err) {
+	if b, err = ev.Kind.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	b = append(b, ',')
-	if b, err = ev.Tags.MarshalJSON(b); chk.E(err) {
+	if b, err = ev.Tags.MarshalJSON(b); Chk.E(err) {
 		panic(err)
 	}
 	b = append(b, ',')
@@ -93,7 +94,7 @@ func Hash(in []byte) (out []byte) {
 // GetIDBytes returns the raw SHA256 hash of the canonical form of an T.
 func (ev *T) GetIDBytes() []byte { return Hash(ev.ToCanonical()) }
 
-func GenerateRandomTextNoteEvent(signer nostr.Signer, maxSize int) (ev *T,
+func GenerateRandomTextNoteEvent(signer crypto.Signer, maxSize int) (ev *T,
 	err error) {
 
 	l := frand.Intn(maxSize * 6 / 8) // account for base64 expansion
@@ -104,7 +105,7 @@ func GenerateRandomTextNoteEvent(signer nostr.Signer, maxSize int) (ev *T,
 		Content:   text.NostrEscape(nil, frand.Bytes(l)),
 		Tags:      tags.New(),
 	}
-	if err = ev.Sign(signer); chk.E(err) {
+	if err = ev.Sign(signer); Chk.E(err) {
 		return
 	}
 	return

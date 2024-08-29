@@ -2,6 +2,7 @@ package authenvelope
 
 import (
 	"io"
+	. "nostr.mleku.dev"
 
 	envs "nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
@@ -21,7 +22,7 @@ func (en *Challenge) Label() string           { return L }
 
 func (en *Challenge) Write(w io.Writer) (err E) {
 	var b B
-	if b, err = en.MarshalJSON(b); chk.E(err) {
+	if b, err = en.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	_, err = w.Write(b)
@@ -43,7 +44,7 @@ func (en *Challenge) MarshalJSON(dst B) (b B, err E) {
 
 func (en *Challenge) UnmarshalJSON(b B) (r B, err E) {
 	r = b
-	if en.Challenge, r, err = text.UnmarshalQuoted(r); chk.E(err) {
+	if en.Challenge, r, err = text.UnmarshalQuoted(r); Chk.E(err) {
 		return
 	}
 	for ; len(r) >= 0; r = r[1:] {
@@ -57,7 +58,7 @@ func (en *Challenge) UnmarshalJSON(b B) (r B, err E) {
 
 func ParseChallenge(b B) (t *Challenge, rem B, err E) {
 	t = NewChallenge()
-	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+	if rem, err = t.UnmarshalJSON(b); Chk.E(err) {
 		return
 	}
 	return
@@ -75,7 +76,7 @@ func (en *Response) Label() string             { return L }
 
 func (en *Response) Write(w io.Writer) (err E) {
 	var b B
-	if b, err = en.MarshalJSON(b); chk.E(err) {
+	if b, err = en.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	_, err = w.Write(b)
@@ -84,11 +85,11 @@ func (en *Response) Write(w io.Writer) (err E) {
 
 func (en *Response) MarshalJSON(dst B) (b B, err E) {
 	if en == nil {
-		err = errorf.E("nil response")
+		err = Errorf.E("nil response")
 		return
 	}
 	if en.Event == nil {
-		err = errorf.E("nil event in response")
+		err = Errorf.E("nil event in response")
 		return
 	}
 	b = dst
@@ -100,10 +101,10 @@ func (en *Response) UnmarshalJSON(b B) (r B, err E) {
 	r = b
 	// literally just unmarshal the event
 	en.Event = event.New()
-	if r, err = en.Event.UnmarshalJSON(r); chk.E(err) {
+	if r, err = en.Event.UnmarshalJSON(r); Chk.E(err) {
 		return
 	}
-	if r, err = envs.SkipToTheEnd(r); chk.E(err) {
+	if r, err = envs.SkipToTheEnd(r); Chk.E(err) {
 		return
 	}
 	return
@@ -111,7 +112,7 @@ func (en *Response) UnmarshalJSON(b B) (r B, err E) {
 
 func ParseResponse(b B) (t *Response, rem B, err E) {
 	t = NewResponse()
-	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+	if rem, err = t.UnmarshalJSON(b); Chk.E(err) {
 		return
 	}
 	return

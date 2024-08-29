@@ -1,6 +1,7 @@
 package tag
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"lukechampine.com/frand"
@@ -16,19 +17,19 @@ func TestMarshalJSONUnmarshalJSON(t *testing.T) {
 			_, _ = frand.Read(b1)
 			tg.Field = append(tg.Field, b1)
 		}
-		// log.I.S(tg)
+		// Log.I.S(tg)
 		b, _ = tg.MarshalJSON(b)
 		bo = make(B, len(b))
 		copy(bo, b)
 		tg2 := NewWithCap(n)
 		rem, err := tg2.UnmarshalJSON(b)
-		// log.I.S(tg2)
-		if chk.E(err) {
+		// Log.I.S(tg2)
+		if Chk.E(err) {
 			t.Fatal(err)
 		}
 		bc, _ = tg2.MarshalJSON(bc)
-		log.I.F("\n\norig\n%s\n\ncopy\n%s\n", bo, bc)
-		if !equals(bo, bc) {
+		Log.I.F("\n\norig\n%s\n\ncopy\n%s\n", bo, bc)
+		if !Equals(bo, bc) {
 			t.Fatalf("got\n%s\nwant\n%s", bo, bc)
 		}
 		if len(rem) != 0 {
@@ -47,19 +48,19 @@ func TestMarshalUnmarshalZeroLengthTag(t *testing.T) {
 	var b B
 	tg := &T{}
 	b, _ = tg.UnmarshalJSON(empty)
-	if b, err = tg.MarshalJSON(b); chk.E(err) {
+	if b, err = tg.MarshalJSON(b); Chk.E(err) {
 		t.Fatal(err)
 	}
-	if !equals(empty, b) {
+	if !Equals(empty, b) {
 		t.Fatalf("got\n%s\nwant\n%s", b, empty)
 	}
 	empty = B("[]")
 	tg = &T{}
 	b, _ = tg.UnmarshalJSON(empty)
-	if b, err = tg.MarshalJSON(b); chk.E(err) {
+	if b, err = tg.MarshalJSON(b); Chk.E(err) {
 		t.Fatal(err)
 	}
-	if !equals(empty, b) {
+	if !Equals(empty, b) {
 		t.Fatalf("got\n%s\nwant\n%s", b, empty)
 	}
 }
@@ -104,7 +105,7 @@ func TestT_Clone_Equal(t *testing.T) {
 		}
 		t2 := t1.Clone()
 		if !t1.Equal(t2) {
-			log.E.S(t1, t2)
+			Log.E.S(t1, t2)
 			t.Fatal("not equal")
 		}
 	}

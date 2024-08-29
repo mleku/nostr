@@ -1,6 +1,9 @@
 package messages
 
-import "lukechampine.com/frand"
+import (
+	"lukechampine.com/frand"
+	. "nostr.mleku.dev"
+)
 
 const (
 	Duplicate   = "duplicate"

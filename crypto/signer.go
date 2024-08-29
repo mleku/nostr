@@ -1,5 +1,9 @@
 package crypto
 
+import (
+	. "nostr.mleku.dev"
+)
+
 type Signer interface {
 	// Generate creates a fresh new key pair from system entropy, and ensures it is even (so
 	// ECDH works).

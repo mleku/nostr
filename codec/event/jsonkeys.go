@@ -1,5 +1,9 @@
 package event
 
+import (
+	. "nostr.mleku.dev"
+)
+
 var (
 	jId        = B("id")
 	jPubkey    = B("pubkey")

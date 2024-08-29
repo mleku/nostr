@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	_ "embed"
+	. "nostr.mleku.dev"
 	"strings"
 	"testing"
 
@@ -20,17 +21,17 @@ func TestTMarshal_Unmarshal(t *testing.T) {
 		c := make(B, 0, len(b))
 		c = append(c, b...)
 		ea := New()
-		if _, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
 			t.Fatalf("some of input remaining after marshal/unmarshal: '%s'",
 				rem)
 		}
-		if out, err = ea.MarshalJSON(out); chk.E(err) {
+		if out, err = ea.MarshalJSON(out); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if !equals(out, c) {
+		if !Equals(out, c) {
 			t.Fatalf("mismatched output\n%s\n\n%s\n", c, out)
 		}
 		out = out[:0]
@@ -46,7 +47,7 @@ func TestT_CheckSignature(t *testing.T) {
 		c := make(B, 0, len(b))
 		c = append(c, b...)
 		ea := New()
-		if _, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
@@ -54,7 +55,7 @@ func TestT_CheckSignature(t *testing.T) {
 				rem)
 		}
 		var valid bool
-		if valid, err = ea.Verify(); chk.E(err) {
+		if valid, err = ea.Verify(); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if !valid {
@@ -67,16 +68,16 @@ func TestT_CheckSignature(t *testing.T) {
 func TestT_SignWithSecKey(t *testing.T) {
 	var err error
 	signer := new(p256k.Signer)
-	if err = signer.Generate(); chk.E(err) {
+	if err = signer.Generate(); Chk.E(err) {
 		t.Fatal(err)
 	}
 	var ev *T
 	for _ = range 1000 {
-		if ev, err = GenerateRandomTextNoteEvent(signer, 1000); chk.E(err) {
+		if ev, err = GenerateRandomTextNoteEvent(signer, 1000); Chk.E(err) {
 			t.Fatal(err)
 		}
 		var valid bool
-		if valid, err = ev.Verify(); chk.E(err) {
+		if valid, err = ev.Verify(); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if !valid {
@@ -101,37 +102,37 @@ func TestBinaryEvents(t *testing.T) {
 		orig = scanner.Bytes()
 		var cp B
 		cp = append(cp, orig...)
-		if orig, err = ev.UnmarshalJSON(orig); chk.E(err) {
+		if orig, err = ev.UnmarshalJSON(orig); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(orig) > 0 {
 			t.Fatalf("remainder after end of event: %s", orig)
 		}
-		if b2, err = ev.MarshalBinary(b2); chk.E(err) {
+		if b2, err = ev.MarshalBinary(b2); Chk.E(err) {
 			t.Fatal(err)
 		}
 		// copy for verification
 		b3 = append(b3, b2...)
-		if b2, err = ev2.UnmarshalBinary(b2); chk.E(err) {
+		if b2, err = ev2.UnmarshalBinary(b2); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if j2, err = ev2.MarshalJSON(j2); chk.E(err) {
+		if j2, err = ev2.MarshalJSON(j2); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(b2) > 0 {
 			t.Fatalf("remainder after end of event: %s", orig)
 		}
 		// bytes should be identical to b3
-		if b2, err = ev2.MarshalBinary(b2); chk.E(err) {
+		if b2, err = ev2.MarshalBinary(b2); Chk.E(err) {
 			es := err.Error()
 			if strings.Contains(es, "invalid length event ID in `a` tag:") {
 				err = nil
 				goto zero
 			}
-			log.E.Ln(es)
+			Log.E.Ln(es)
 		}
-		if !equals(b2, b3) {
-			// log.E.S(ev, ev2)
+		if !Equals(b2, b3) {
+			// Log.E.S(ev, ev2)
 			t.Fatalf("failed to remarshal\n%0x\n%0x",
 				b3, b2)
 		}
@@ -153,7 +154,7 @@ func BenchmarkMarshalJSON(bb *testing.B) {
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ea := New()
-		if b, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if b, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			bb.Fatal(err)
 		}
 		evts = append(evts, ea)
@@ -188,7 +189,7 @@ func BenchmarkUnmarshalJSON(bb *testing.B) {
 		}
 		b := scanner.Bytes()
 		ea := New()
-		if b, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if b, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			bb.Fatal(err)
 		}
 		evts[counter] = ea
@@ -211,7 +212,7 @@ func BenchmarkMarshalBinary(bb *testing.B) {
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ea := New()
-		if b, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if b, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			bb.Fatal(err)
 		}
 		evts = append(evts, ea)
@@ -242,7 +243,7 @@ func BenchmarkUnmarshalBinary(bb *testing.B) {
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ea := New()
-		if b, err = ea.UnmarshalJSON(b); chk.E(err) {
+		if b, err = ea.UnmarshalJSON(b); Chk.E(err) {
 			bb.Fatal(err)
 		}
 		out = make(B, len(b))

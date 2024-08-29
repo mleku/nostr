@@ -1,10 +1,9 @@
 package nip86
 
 import (
-	"fmt"
 	"math"
 	"net"
-
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/crypto/keys"
 )
 
@@ -14,11 +13,11 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return SupportedMethods{}, nil
 	case "banpubkey":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		pk, ok := req.Params[0].(string)
 		if !ok || !keys.IsValidPublicKey(pk) {
-			return nil, fmt.Errorf("invalid pubkey param for '%s'", req.Method)
+			return nil, Errorf.E("invalid pubkey param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -29,11 +28,11 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return ListBannedPubKeys{}, nil
 	case "allowpubkey":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		pk, ok := req.Params[0].(string)
 		if !ok || !keys.IsValidPublicKey(pk) {
-			return nil, fmt.Errorf("invalid pubkey param for '%s'", req.Method)
+			return nil, Errorf.E("invalid pubkey param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -46,11 +45,11 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return ListEventsNeedingModeration{}, nil
 	case "allowevent":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		id, ok := req.Params[0].(string)
 		if !ok || !keys.IsValid32ByteHex(id) {
-			return nil, fmt.Errorf("invalid id param for '%s'", req.Method)
+			return nil, Errorf.E("invalid id param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -59,11 +58,11 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return AllowEvent{id, reason}, nil
 	case "banevent":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		id, ok := req.Params[0].(string)
 		if !ok || !keys.IsValid32ByteHex(id) {
-			return nil, fmt.Errorf("invalid id param for '%s'", req.Method)
+			return nil, Errorf.E("invalid id param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -74,50 +73,50 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return ListBannedEvents{}, nil
 	case "changerelayname":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		name, _ := req.Params[0].(string)
 		return ChangeRelayName{name}, nil
 	case "changerelaydescription":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		desc, _ := req.Params[0].(string)
 		return ChangeRelayDescription{desc}, nil
 	case "changerelayicon":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		url, _ := req.Params[0].(string)
 		return ChangeRelayIcon{url}, nil
 	case "allowkind":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		kind, ok := req.Params[0].(float64)
 		if !ok || math.Trunc(kind) != kind {
-			return nil, fmt.Errorf("invalid kind '%v' for '%s'", req.Params[0], req.Method)
+			return nil, Errorf.E("invalid kind '%v' for '%s'", req.Params[0], req.Method)
 		}
 		return AllowKind{int(kind)}, nil
 	case "disallowkind":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		kind, ok := req.Params[0].(float64)
 		if !ok || math.Trunc(kind) != kind {
-			return nil, fmt.Errorf("invalid kind '%v' for '%s'", req.Params[0], req.Method)
+			return nil, Errorf.E("invalid kind '%v' for '%s'", req.Params[0], req.Method)
 		}
 		return DisallowKind{int(kind)}, nil
 	case "listallowedkinds":
 		return ListAllowedKinds{}, nil
 	case "blockip":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		ipstr, _ := req.Params[0].(string)
 		ip := net.ParseIP(ipstr)
 		if ip == nil {
-			return nil, fmt.Errorf("invalid ip param for '%s'", req.Method)
+			return nil, Errorf.E("invalid ip param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -126,12 +125,12 @@ func DecodeRequest(req Request) (MethodParams, error) {
 		return BlockIP{ip, reason}, nil
 	case "unblockip":
 		if len(req.Params) == 0 {
-			return nil, fmt.Errorf("invalid number of params for '%s'", req.Method)
+			return nil, Errorf.E("invalid number of params for '%s'", req.Method)
 		}
 		ipstr, _ := req.Params[0].(string)
 		ip := net.ParseIP(ipstr)
 		if ip == nil {
-			return nil, fmt.Errorf("invalid ip param for '%s'", req.Method)
+			return nil, Errorf.E("invalid ip param for '%s'", req.Method)
 		}
 		var reason string
 		if len(req.Params) >= 2 {
@@ -141,7 +140,7 @@ func DecodeRequest(req Request) (MethodParams, error) {
 	case "listblockedips":
 		return ListBlockedIPs{}, nil
 	default:
-		return nil, fmt.Errorf("unknown method '%s'", req.Method)
+		return nil, Errorf.E("unknown method '%s'", req.Method)
 	}
 }
 

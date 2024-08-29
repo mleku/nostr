@@ -1,6 +1,7 @@
 package subscriptionid
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"lukechampine.com/frand"
@@ -14,23 +15,23 @@ func TestMarshalJSONUnmarshalJSON(t *testing.T) {
 		copy(bc, b)
 		var err error
 		var si *T
-		if si, err = New(b); chk.E(err) {
+		if si, err = New(b); Chk.E(err) {
 			t.Fatal(err)
 		}
 		var m B
-		if m, err = si.MarshalJSON(nil); chk.E(err) {
+		if m, err = si.MarshalJSON(nil); Chk.E(err) {
 			t.Fatal(err)
 		}
 		var ui *T
 		ui, _ = New("")
 		var rem B
-		if rem, err = ui.UnmarshalJSON(m); chk.E(err) {
+		if rem, err = ui.UnmarshalJSON(m); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) > 0 {
 			t.Errorf("len(rem): %d, '%s'", len(rem), rem)
 		}
-		if !equals(ui.T, bc) {
+		if !Equals(ui.T, bc) {
 			t.Fatalf("bc: %0x, uu: %0x", bc, ui)
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
 	"github.com/minio/sha256-simd"
@@ -113,7 +114,7 @@ func (r *Reader) ReadTags() (t *tags.T, err error) {
 			vi, read = binary.Uvarint(r.Buf[r.Pos:])
 			if read < 1 {
 				err = io.EOF
-				log.I.S()
+				Log.I.S()
 				return
 			}
 			r.Pos += read
@@ -159,7 +160,7 @@ func (r *Reader) ReadTags() (t *tags.T, err error) {
 					r.Pos += 2
 					fieldEnd += schnorr.PubKeyBytesLen
 					if fieldEnd > end {
-						err = log.E.Err("%v got %d expect %d",
+						err = Log.E.Err("%v got %d expect %d",
 							io.EOF, fieldEnd, end)
 						return
 					}
@@ -189,7 +190,7 @@ func (r *Reader) ReadContent() (s B, err error) {
 	r.Pos += n
 	end := r.Pos + int(vi)
 	if end > len(r.Buf) {
-		err = log.E.Err("expect %d got %d", end, len(r.Buf))
+		err = Log.E.Err("expect %d got %d", end, len(r.Buf))
 		return
 	}
 	// extract the string
@@ -211,25 +212,25 @@ func (r *Reader) ReadSignature() (sig B, err error) {
 
 func (r *Reader) ReadEvent() (ev *T, err error) {
 	ev = &T{}
-	if ev.ID, err = r.ReadID(); chk.E(err) {
+	if ev.ID, err = r.ReadID(); Chk.E(err) {
 		return
 	}
-	if ev.PubKey, err = r.ReadPubKey(); chk.E(err) {
+	if ev.PubKey, err = r.ReadPubKey(); Chk.E(err) {
 		return
 	}
-	if ev.CreatedAt, err = r.ReadCreatedAt(); chk.E(err) {
+	if ev.CreatedAt, err = r.ReadCreatedAt(); Chk.E(err) {
 		return
 	}
-	if ev.Kind, err = r.ReadKind(); chk.E(err) {
+	if ev.Kind, err = r.ReadKind(); Chk.E(err) {
 		return
 	}
-	if ev.Tags, err = r.ReadTags(); chk.E(err) {
+	if ev.Tags, err = r.ReadTags(); Chk.E(err) {
 		return
 	}
-	if ev.Content, err = r.ReadContent(); chk.E(err) {
+	if ev.Content, err = r.ReadContent(); Chk.E(err) {
 		return
 	}
-	if ev.Sig, err = r.ReadSignature(); chk.E(err) {
+	if ev.Sig, err = r.ReadSignature(); Chk.E(err) {
 		return
 	}
 	return
@@ -238,7 +239,7 @@ func (r *Reader) ReadEvent() (ev *T, err error) {
 func (ev *T) UnmarshalBinary(b B) (r B, err E) {
 	er := &Reader{Buf: b}
 	var re *T
-	if re, err = er.ReadEvent(); chk.E(err) {
+	if re, err = er.ReadEvent(); Chk.E(err) {
 		return
 	}
 	*ev = *re

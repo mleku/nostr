@@ -1,6 +1,7 @@
 package tags
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"lukechampine.com/frand"
@@ -28,12 +29,12 @@ func TestMarshalUnmarshal(t *testing.T) {
 		copy(bo, b)
 		ta := &T{}
 		rem, err = ta.UnmarshalJSON(b)
-		if chk.E(err) {
+		if Chk.E(err) {
 			t.Fatal(err)
 		}
 		var bc B
 		bc, _ = ta.MarshalJSON(bc)
-		if !equals(bo, bc) {
+		if !Equals(bo, bc) {
 			t.Fatalf("got\n%s\nwant\n%s\n", bc, bo)
 		}
 		b, rem, bo, bc = b[:0], rem[:0], bo[:0], bc[:0]
@@ -46,39 +47,39 @@ func TestEmpty(t *testing.T) {
 	var empty, empty1, empty2 *T
 	_, _, _ = empty, empty1, empty2
 	empty = New()
-	if b0, err = empty.MarshalJSON(b0); chk.E(err) {
+	if b0, err = empty.MarshalJSON(b0); Chk.E(err) {
 		t.Fatal(err)
 	}
 	bc = make(B, len(b0))
 	copy(bc, b0)
 	empty1 = New()
-	if b0, err = empty1.UnmarshalJSON(b0); chk.E(err) {
+	if b0, err = empty1.UnmarshalJSON(b0); Chk.E(err) {
 		t.Fatal(err)
 	}
 	empty2 = New()
-	if b1, err = empty2.MarshalJSON(b1); chk.E(err) {
+	if b1, err = empty2.MarshalJSON(b1); Chk.E(err) {
 		t.Fatal(err)
 	}
-	if !equals(bc, b1) {
-		t.Fatalf("'%s' == '%s' -> %v", bc, b1, equals(bc, b1))
+	if !Equals(bc, b1) {
+		t.Fatalf("'%s' == '%s' -> %v", bc, b1, Equals(bc, b1))
 	}
 	b0, bc, b1 = b0[:0], bc[:0], b1[:0]
 	empty = New(&tag.T{})
-	if b0, err = empty.MarshalJSON(b0); chk.E(err) {
+	if b0, err = empty.MarshalJSON(b0); Chk.E(err) {
 		t.Fatal(err)
 	}
 	bc = make(B, len(b0))
 	copy(bc, b0)
 	empty1 = New()
-	if b0, err = empty1.UnmarshalJSON(b0); chk.E(err) {
+	if b0, err = empty1.UnmarshalJSON(b0); Chk.E(err) {
 		t.Fatal(err)
 	}
 	empty2 = New()
-	if b1, err = empty1.MarshalJSON(b1); chk.E(err) {
+	if b1, err = empty1.MarshalJSON(b1); Chk.E(err) {
 		t.Fatal(err)
 	}
-	if !equals(bc, b1) {
-		t.Fatalf("'%s' == '%s' -> %v", bc, b1, equals(bc, b1))
+	if !Equals(bc, b1) {
+		t.Fatalf("'%s' == '%s' -> %v", bc, b1, Equals(bc, b1))
 	}
 	b0, bc, b1 = b0[:0], bc[:0], b1[:0]
 }
@@ -123,7 +124,7 @@ func BenchmarkMarshalJSONUnmarshalJSON(bb *testing.B) {
 			b, _ = tgs.MarshalJSON(b)
 			ta := New()
 			rem, err = ta.UnmarshalJSON(b)
-			if chk.E(err) {
+			if Chk.E(err) {
 				bb.Fatal(err)
 			}
 			if len(rem) != 0 {
@@ -152,7 +153,7 @@ func TestT_Clone_Equal(t *testing.T) {
 		}
 		t2 := t1.Clone()
 		if !t1.Equal(t2) {
-			log.E.S(t1, t2)
+			Log.E.S(t1, t2)
 			t.Fatal("not equal")
 		}
 	}

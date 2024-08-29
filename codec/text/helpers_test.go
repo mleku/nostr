@@ -1,6 +1,7 @@
 package text
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"github.com/minio/sha256-simd"
@@ -29,7 +30,7 @@ func TestUnmarshalHexArray(t *testing.T) {
 	var ha2 []B
 	var rem B
 	var err error
-	if ha2, rem, err = UnmarshalHexArray(dst, 32); chk.E(err) {
+	if ha2, rem, err = UnmarshalHexArray(dst, 32); Chk.E(err) {
 		t.Fatal(err)
 	}
 	if len(ha2) != len(ha) {
@@ -40,7 +41,7 @@ func TestUnmarshalHexArray(t *testing.T) {
 		t.Fatalf("failed to unmarshal, remnant afterwards '%s'", rem)
 	}
 	for i := range ha2 {
-		if !equals(ha[i], ha2[i]) {
+		if !Equals(ha[i], ha2[i]) {
 			t.Fatalf("failed to unmarshal at element %d; got %x, expected %x",
 				i, ha[i], ha2[i])
 		}

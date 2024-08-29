@@ -1,5 +1,9 @@
 package crypto
 
+import (
+	. "nostr.mleku.dev"
+)
+
 // Generator is an interface for nostr BIP-340 key generation.
 type Generator interface {
 	// Generate gathers entropy and derives pubkey bytes for matching, this returns the 33 byte

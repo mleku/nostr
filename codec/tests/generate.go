@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/base64"
+	. "nostr.mleku.dev"
 
 	"lukechampine.com/frand"
 	"nostr.mleku.dev/codec/event"
@@ -16,20 +17,20 @@ func GenerateEvent(nsec B, maxSize int) (ev *event.T, binSize int, err E) {
 	ev = &event.T{
 		Kind:      kind.TextNote,
 		CreatedAt: timestamp.Now(),
-		Content:   event.B(base64.StdEncoding.EncodeToString(frand.Bytes(l))),
+		Content:   B(base64.StdEncoding.EncodeToString(frand.Bytes(l))),
 	}
 	var sec B
-	if _, err = hex.DecBytes(sec, nsec); chk.E(err) {
+	if _, err = hex.DecBytes(sec, nsec); Chk.E(err) {
 		return
 	}
 	signer := new(p256k.Signer)
-	if err = signer.Generate(); chk.E(err) {
+	if err = signer.Generate(); Chk.E(err) {
 		return
 	}
-	if err = signer.InitSec(sec); chk.E(err) {
+	if err = signer.InitSec(sec); Chk.E(err) {
 		return
 	}
-	if err = ev.Sign(signer); chk.E(err) {
+	if err = ev.Sign(signer); Chk.E(err) {
 		return
 	}
 	var bin []byte

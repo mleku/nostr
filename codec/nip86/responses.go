@@ -1,16 +1,20 @@
 package nip86
 
+import (
+	. "nostr.mleku.dev"
+)
+
 type IDReason struct {
-	ID     string `json:"id"`
-	Reason string `json:"reason"`
+	ID     S `json:"id"`
+	Reason S `json:"reason"`
 }
 
 type PubKeyReason struct {
-	PubKey string `json:"pubkey"`
-	Reason string `json:"reason"`
+	PubKey S `json:"pubkey"`
+	Reason S `json:"reason"`
 }
 
 type IPReason struct {
-	IP     string `json:"ip"`
-	Reason string `json:"reason"`
+	IP     S `json:"ip"`
+	Reason S `json:"reason"`
 }

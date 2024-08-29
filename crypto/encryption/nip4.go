@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	. "nostr.mleku.dev"
 	"strings"
 
 	"lukechampine.com/frand"
@@ -16,17 +17,17 @@ import (
 // encoded. Uses the Diffie-Hellman key exchange (ECDH) (RFC 4753).
 func ComputeSharedSecret(pkh, skh S) (sharedSecret B, err E) {
 	var skb, pkb B
-	if skb, err = hex.Dec(skh); chk.E(err) {
+	if skb, err = hex.Dec(skh); Chk.E(err) {
 		return
 	}
-	if pkb, err = hex.Dec(pkh); chk.E(err) {
+	if pkb, err = hex.Dec(pkh); Chk.E(err) {
 		return
 	}
 	signer := new(p256k.Signer)
-	if err = signer.InitSec(skb); chk.E(err) {
+	if err = signer.InitSec(skb); Chk.E(err) {
 		return
 	}
-	if sharedSecret, err = signer.ECDH(pkb); chk.E(err) {
+	if sharedSecret, err = signer.ECDH(pkb); Chk.E(err) {
 		return
 	}
 	return
@@ -41,14 +42,14 @@ func ComputeSharedSecret(pkh, skh S) (sharedSecret B, err E) {
 func EncryptNip4(msg S, key B) (ct B, err E) {
 	// block size is 16 bytes
 	iv := make(B, 16)
-	if _, err = frand.Read(iv); chk.E(err) {
-		err = errorf.E("error creating initialization vector: %w", err)
+	if _, err = frand.Read(iv); Chk.E(err) {
+		err = Errorf.E("error creating initialization vector: %w", err)
 		return
 	}
 	// automatically picks aes-256 based on key length (32 bytes)
 	var block cipher.Block
-	if block, err = aes.NewCipher(key); chk.E(err) {
-		err = errorf.E("error creating block cipher: %w", err)
+	if block, err = aes.NewCipher(key); Chk.E(err) {
+		err = Errorf.E("error creating block cipher: %w", err)
 		return
 	}
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -74,22 +75,22 @@ func EncryptNip4(msg S, key B) (ct B, err E) {
 func DecryptNip4(content S, key B) (msg B, err E) {
 	parts := strings.Split(content, "?iv=")
 	if len(parts) < 2 {
-		return nil, errorf.E(
+		return nil, Errorf.E(
 			"error parsing encrypted message: no initialization vector")
 	}
 	var ciphertext B
-	if ciphertext, err = base64.StdEncoding.DecodeString(parts[0]); chk.E(err) {
-		err = errorf.E("error decoding ciphertext from base64: %w", err)
+	if ciphertext, err = base64.StdEncoding.DecodeString(parts[0]); Chk.E(err) {
+		err = Errorf.E("error decoding ciphertext from base64: %w", err)
 		return
 	}
 	var iv B
-	if iv, err = base64.StdEncoding.DecodeString(parts[1]); chk.E(err) {
-		err = errorf.E("error decoding iv from base64: %w", err)
+	if iv, err = base64.StdEncoding.DecodeString(parts[1]); Chk.E(err) {
+		err = Errorf.E("error decoding iv from base64: %w", err)
 		return
 	}
 	var block cipher.Block
-	if block, err = aes.NewCipher(key); chk.E(err) {
-		err = errorf.E("error creating block cipher: %w", err)
+	if block, err = aes.NewCipher(key); Chk.E(err) {
+		err = Errorf.E("error creating block cipher: %w", err)
 		return
 	}
 	mode := cipher.NewCBCDecrypter(block, iv)
@@ -103,7 +104,7 @@ func DecryptNip4(content S, key B) (msg B, err E) {
 		// the padding amount is encoded in the padding bytes themselves
 		padding := int(msg[plaintextLen-1])
 		if padding > plaintextLen {
-			err = errorf.E("invalid padding amount: %d", padding)
+			err = Errorf.E("invalid padding amount: %d", padding)
 			return
 		}
 		msg = msg[0 : plaintextLen-padding]

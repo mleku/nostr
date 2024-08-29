@@ -1,6 +1,7 @@
 package text
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"github.com/minio/sha256-simd"
@@ -119,7 +120,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -130,7 +131,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -143,7 +144,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -158,7 +159,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -170,7 +171,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -184,7 +185,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -199,7 +200,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -211,7 +212,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -225,7 +226,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -240,7 +241,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -252,7 +253,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -266,7 +267,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -281,7 +282,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -293,7 +294,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -307,7 +308,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -322,7 +323,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -334,7 +335,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -348,7 +349,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -363,7 +364,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		in := make([]byte, size)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 		}
@@ -375,7 +376,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)
@@ -389,7 +390,7 @@ func BenchmarkNostrEscapeNostrUnescape(b *testing.B) {
 		out := make([]byte, size*2)
 		var err error
 		for i := 0; i < b.N; i++ {
-			if _, err = frand.Read(in); chk.E(err) {
+			if _, err = frand.Read(in); Chk.E(err) {
 				b.Fatal(err)
 			}
 			out = NostrEscape(out, in)

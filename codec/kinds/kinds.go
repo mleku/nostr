@@ -1,6 +1,7 @@
 package kinds
 
 import (
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/kind"
 	"util.mleku.dev/ints"
 )
@@ -70,7 +71,7 @@ func (k *T) MarshalJSON(dst B) (b B, err error) {
 	b = dst
 	b = append(b, '[')
 	for i := range k.K {
-		if b, err = k.K[i].MarshalJSON(b); chk.E(err) {
+		if b, err = k.K[i].MarshalJSON(b); Chk.E(err) {
 			return
 		}
 		if i != len(k.K)-1 {
@@ -96,7 +97,7 @@ func (k *T) UnmarshalJSON(b B) (r B, err error) {
 				continue
 			}
 			kk := ints.New(0)
-			if r, err = kk.UnmarshalJSON(r); chk.E(err) {
+			if r, err = kk.UnmarshalJSON(r); Chk.E(err) {
 				return
 			}
 			k.K = append(k.K, kind.New(kk.Uint16()))
@@ -107,8 +108,8 @@ func (k *T) UnmarshalJSON(b B) (r B, err error) {
 		}
 	}
 	if !openedBracket {
-		log.I.F("\n%v\n%s", k, r)
-		return nil, errorf.E("kinds: failed to unmarshal\n%s\n%s\n%s", k,
+		Log.I.F("\n%v\n%s", k, r)
+		return nil, Errorf.E("kinds: failed to unmarshal\n%s\n%s\n%s", k,
 			b, r)
 	}
 	return

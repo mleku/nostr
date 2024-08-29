@@ -1,6 +1,7 @@
 package text
 
 import (
+	. "nostr.mleku.dev"
 	"util.mleku.dev/hex"
 )
 
@@ -18,11 +19,11 @@ func AppendBinaryFromHex(dst, src B, unquote bool) (b B,
 	err error) {
 	if unquote {
 		if dst, err = hex.DecAppend(dst,
-			Unquote(src)); chk.E(err) {
+			Unquote(src)); Chk.E(err) {
 			return
 		}
 	} else {
-		if dst, err = hex.DecAppend(dst, src); chk.E(err) {
+		if dst, err = hex.DecAppend(dst, src); Chk.E(err) {
 			return
 		}
 	}

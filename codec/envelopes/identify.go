@@ -1,5 +1,9 @@
 package envelopes
 
+import (
+	. "nostr.mleku.dev"
+)
+
 func Identify(b B) (t S, rem B, err E) {
 	var openBrackets, openQuotes, afterQuotes bool
 	var label B

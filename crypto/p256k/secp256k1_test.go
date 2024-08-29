@@ -5,6 +5,7 @@ package p256k_test
 import (
 	"bufio"
 	"bytes"
+	. "nostr.mleku.dev"
 	"testing"
 
 	"ec.mleku.dev/v2/schnorr"
@@ -24,10 +25,10 @@ func TestVerify(t *testing.T) {
 		var valid bool
 		b := scanner.Bytes()
 		ev := event.New()
-		if _, err = ev.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ev.UnmarshalJSON(b); Chk.E(err) {
 			t.Errorf("failed to marshal\n%s", b)
 		} else {
-			if valid, err = ev.Verify(); chk.E(err) || !valid {
+			if valid, err = ev.Verify(); Chk.E(err) || !valid {
 				t.Errorf("btcec: invalid signature\n%s", b)
 				continue
 			}
@@ -37,7 +38,7 @@ func TestVerify(t *testing.T) {
 			t.Errorf("id should be 32 bytes, got %d", len(id))
 			continue
 		}
-		if err = p256k.VerifyFromBytes(id, ev.Sig, ev.PubKey); chk.E(err) {
+		if err = p256k.VerifyFromBytes(id, ev.Sig, ev.PubKey); Chk.E(err) {
 			t.Error(err)
 			continue
 		}
@@ -54,13 +55,13 @@ func TestSign(t *testing.T) {
 	var sec1 *p256k.Sec
 	var pub1 *p256k.XPublicKey
 	var pb B
-	if _, pb, sec1, pub1, _, err = p256k.Generate(); chk.E(err) {
+	if _, pb, sec1, pub1, _, err = p256k.Generate(); Chk.E(err) {
 		t.Fatal(err)
 	}
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ev := event.New()
-		if _, err = ev.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ev.UnmarshalJSON(b); Chk.E(err) {
 			t.Errorf("failed to marshal\n%s", b)
 		}
 		evs = append(evs, ev)
@@ -69,15 +70,15 @@ func TestSign(t *testing.T) {
 	for _, ev := range evs {
 		ev.PubKey = pb
 		var uid *p256k.Uchar
-		if uid, err = p256k.Msg(ev.GetIDBytes()); chk.E(err) {
+		if uid, err = p256k.Msg(ev.GetIDBytes()); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if sig, err = p256k.Sign(uid, sec1.Sec()); chk.E(err) {
+		if sig, err = p256k.Sign(uid, sec1.Sec()); Chk.E(err) {
 			t.Fatal(err)
 		}
 		ev.Sig = sig
 		var usig *p256k.Uchar
-		if usig, err = p256k.Sig(sig); chk.E(err) {
+		if usig, err = p256k.Sig(sig); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if !p256k.Verify(uid, usig, pub1.Key) {

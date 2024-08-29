@@ -2,6 +2,7 @@ package envelopes
 
 import (
 	"io"
+	. "nostr.mleku.dev"
 )
 
 type Marshaler func(dst B) (b B, err error)
@@ -11,7 +12,7 @@ func Marshal(dst B, label string, m Marshaler) (b B, err error) {
 	b = append(b, '[', '"')
 	b = append(b, label...)
 	b = append(b, '"', ',')
-	if b, err = m(b); chk.E(err) {
+	if b, err = m(b); Chk.E(err) {
 		return
 	}
 	b = append(b, ']')

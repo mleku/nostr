@@ -3,6 +3,7 @@ package event
 import (
 	"ec.mleku.dev/v2/schnorr"
 	"github.com/minio/sha256-simd"
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/kind"
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/text"
@@ -37,7 +38,7 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 	var key B
 	var state int
 	for ; len(rem) > 0; rem = rem[1:] {
-		log.I.F("%s %s", rem, states[state])
+		Log.I.F("%s %s", rem, states[state])
 		switch state {
 		case beforeOpen:
 			if rem[0] == '{' {
@@ -64,11 +65,11 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				var id B
-				if id, rem, err = text.UnmarshalHex(rem); chk.E(err) {
+				if id, rem, err = text.UnmarshalHex(rem); Chk.E(err) {
 					return
 				}
 				if len(id) != sha256.Size {
-					err = errorf.E("invalid ID, require %d got %d", sha256.Size,
+					err = Errorf.E("invalid ID, require %d got %d", sha256.Size,
 						len(id))
 					return
 				}
@@ -79,11 +80,11 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				var pk B
-				if pk, rem, err = text.UnmarshalHex(rem); chk.E(err) {
+				if pk, rem, err = text.UnmarshalHex(rem); Chk.E(err) {
 					return
 				}
 				if len(pk) != schnorr.PubKeyBytesLen {
-					err = errorf.E("invalid pubkey, require %d got %d",
+					err = Errorf.E("invalid pubkey, require %d got %d",
 						schnorr.PubKeyBytesLen, len(pk))
 					return
 				}
@@ -94,7 +95,7 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				ev.Kind = kind.New(0)
-				if rem, err = ev.Kind.UnmarshalJSON(rem); chk.E(err) {
+				if rem, err = ev.Kind.UnmarshalJSON(rem); Chk.E(err) {
 					return
 				}
 				state = betweenKV
@@ -103,7 +104,7 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				ev.Tags = tags.New()
-				if rem, err = ev.Tags.UnmarshalJSON(rem); chk.E(err) {
+				if rem, err = ev.Tags.UnmarshalJSON(rem); Chk.E(err) {
 					return
 				}
 				state = betweenKV
@@ -112,11 +113,11 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				var sig B
-				if sig, rem, err = text.UnmarshalHex(rem); chk.E(err) {
+				if sig, rem, err = text.UnmarshalHex(rem); Chk.E(err) {
 					return
 				}
 				if len(sig) != schnorr.SignatureSize {
-					err = errorf.E("invalid sig length, require %d got %d '%s'",
+					err = Errorf.E("invalid sig length, require %d got %d '%s'",
 						schnorr.SignatureSize, len(sig), rem)
 					return
 				}
@@ -128,7 +129,7 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 					goto invalid
 				}
 				if key[1] == jContent[1] {
-					if ev.Content, rem, err = text.UnmarshalQuoted(rem); chk.E(err) {
+					if ev.Content, rem, err = text.UnmarshalQuoted(rem); Chk.E(err) {
 						return
 					}
 					state = betweenKV
@@ -137,7 +138,7 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 						goto invalid
 					}
 					ev.CreatedAt = timestamp.New()
-					if rem, err = ev.CreatedAt.UnmarshalJSON(rem); chk.E(err) {
+					if rem, err = ev.CreatedAt.UnmarshalJSON(rem); Chk.E(err) {
 						return
 					}
 					state = betweenKV
@@ -163,16 +164,16 @@ func (ev *T) UnmarshalJSONold(b B) (rem B, err error) {
 		}
 	}
 	if len(rem) != 0 && state != afterClose {
-		log.I.Ln("state", states[state])
-		log.I.F("position\n%d %s\n\n%d %s", len(b)-len(rem),
+		Log.I.Ln("state", states[state])
+		Log.I.F("position\n%d %s\n\n%d %s", len(b)-len(rem),
 			b[:len(b)-len(rem)],
 			len(rem), rem)
-		err = errorf.E("invalid event")
+		err = Errorf.E("invalid event")
 	}
 	return
 invalid:
-	log.I.Ln("state", states[state])
-	err = errorf.E("invalid key,\n'%s'\n'%s'\n'%s'", S(b), S(b[:len(rem)]),
+	Log.I.Ln("state", states[state])
+	err = Errorf.E("invalid key,\n'%s'\n'%s'\n'%s'", S(b), S(b[:len(rem)]),
 		S(rem))
 	return
 }

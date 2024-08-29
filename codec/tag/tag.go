@@ -2,6 +2,7 @@ package tag
 
 import (
 	"bytes"
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/text"
 	"util.mleku.dev/normalize"
@@ -85,7 +86,7 @@ func (t *T) StartsWith(prefix *T) bool {
 	}
 	// check initial elements for equality
 	for i := 0; i < prefixLen-1; i++ {
-		if !equals(prefix.Field[i], t.Field[i]) {
+		if !Equals(prefix.Field[i], t.Field[i]) {
 			return false
 		}
 	}
@@ -113,8 +114,8 @@ var etag, ptag = B("e"), B("p")
 
 // Relay returns the third element of the tag.
 func (t *T) Relay() (s B) {
-	if (equals(t.Key(), etag) ||
-		equals(t.Key(), ptag)) &&
+	if (Equals(t.Key(), etag) ||
+		Equals(t.Key(), ptag)) &&
 		len(t.Field) >= Relay {
 
 		return normalize.URL(B(t.Field[Relay]))
@@ -158,10 +159,10 @@ func (t *T) UnmarshalJSON(b B) (r B, err error) {
 		}
 	}
 	if !openedBracket || inQuotes {
-		log.I.F("\n%v\n%s", t, r)
-		return nil, errorf.E("tag: failed to parse tag")
+		Log.I.F("\n%v\n%s", t, r)
+		return nil, Errorf.E("tag: failed to parse tag")
 	}
-	log.I.S(t.Field)
+	Log.I.S(t.Field)
 	return
 }
 
@@ -173,7 +174,7 @@ func (t *T) UnmarshalJSON(b B) (r B, err error) {
 // Contains returns true if the provided element is found in the tag slice.
 func (t *T) Contains(s B) bool {
 	for i := range t.Field {
-		if equals(t.Field[i], s) {
+		if Equals(t.Field[i], s) {
 			return true
 		}
 	}
@@ -186,7 +187,7 @@ func (t *T) Equal(ta *T) bool {
 		return false
 	}
 	for i := range t.Field {
-		if !equals(t.Field[i], ta.Field[i]) {
+		if !Equals(t.Field[i], ta.Field[i]) {
 			return false
 		}
 	}

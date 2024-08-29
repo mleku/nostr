@@ -1,7 +1,7 @@
 package ws
 
 import (
-	"fmt"
+	. "nostr.mleku.dev"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -19,7 +19,7 @@ type Subscription struct {
 	label   string
 	counter int
 
-	Relay   *Relay
+	Relay   *Client
 	Filters *filters.T
 
 	// for this to be treated as a COUNT and not a REQ this must be set
@@ -37,7 +37,7 @@ type Subscription struct {
 	ClosedReason chan string
 
 	// Context will be .Done() when the subscription ends
-	Context context.T
+	Context Ctx
 
 	live   atomic.Bool
 	eosed  atomic.Bool
@@ -68,11 +68,11 @@ func (_ WithLabel) IsSubscriptionOption() {}
 
 var _ SubscriptionOption = (WithLabel)("")
 
-// GetID return the Nostr subscription ID as given to the Relay
+// GetID return the Nostr subscription ID as given to the Client
 // it is a concatenation of the label and a serial number.
 func (sub *Subscription) GetID() (id *subscriptionid.T) {
 	var err E
-	if id, err = subscriptionid.New(sub.label + ":" + strconv.Itoa(sub.counter)); chk.E(err) {
+	if id, err = subscriptionid.New(sub.label + ":" + strconv.Itoa(sub.counter)); Chk.E(err) {
 		return
 	}
 	return
@@ -152,17 +152,17 @@ func (sub *Subscription) Close() {
 		closeMsg := closeenvelope.NewFrom(id)
 		var err E
 		var b B
-		if b, err = closeMsg.MarshalJSON(nil); chk.E(err) {
+		if b, err = closeMsg.MarshalJSON(nil); Chk.E(err) {
 			return
 		}
-		log.D.F("{%s} sending %v", sub.Relay.URL, b)
+		Log.D.F("{%s} sending %v", sub.Relay.URL, b)
 		<-sub.Relay.Write(b)
 	}
 }
 
 // Sub sets sub.Filters and then calls sub.Fire(ctx). The subscription will be closed if the
 // context expires.
-func (sub *Subscription) Sub(_ context.T, ff *filters.T) {
+func (sub *Subscription) Sub(_ Ctx, ff *filters.T) {
 	sub.Filters = ff
 	sub.Fire()
 }
@@ -173,19 +173,19 @@ func (sub *Subscription) Fire() (err E) {
 
 	var b []byte
 	if sub.countResult == nil {
-		if b, err = reqenvelope.NewFrom(id, sub.Filters).MarshalJSON(b); chk.E(err) {
+		if b, err = reqenvelope.NewFrom(id, sub.Filters).MarshalJSON(b); Chk.E(err) {
 			return
 		}
 	} else {
-		if b, err = countenvelope.NewRequest(id, sub.Filters).MarshalJSON(b); chk.E(err) {
+		if b, err = countenvelope.NewRequest(id, sub.Filters).MarshalJSON(b); Chk.E(err) {
 			return
 		}
 	}
-	log.I.F("{%s} sending %s", sub.Relay.URL, b)
+	Log.I.F("{%s} sending %s", sub.Relay.URL, b)
 	sub.live.Store(true)
 	if err := <-sub.Relay.Write(b); err != nil {
 		sub.cancel()
-		return fmt.Errorf("failed to write: %w", err)
+		return Errorf.E("failed to write: %w", err)
 	}
 
 	return nil

@@ -1,6 +1,7 @@
 package countenvelope
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -13,39 +14,39 @@ func TestRequest(t *testing.T) {
 	rb, rb1, rb2 := make(B, 0, 65535), make(B, 0, 65535), make(B, 0, 65535)
 	for _ = range 1000 {
 		var f *filters.T
-		if f, err = filters.GenFilters(5); chk.E(err) {
+		if f, err = filters.GenFilters(5); Chk.E(err) {
 			t.Fatal(err)
 		}
 		var s *subscriptionid.T
-		if s = subscriptionid.NewStd(); chk.E(err) {
+		if s = subscriptionid.NewStd(); Chk.E(err) {
 			t.Fatal(err)
 		}
 		req := NewRequest(s, f)
-		if rb, err = req.MarshalJSON(rb); chk.E(err) {
+		if rb, err = req.MarshalJSON(rb); Chk.E(err) {
 			t.Fatal(err)
 		}
 		rb1 = rb1[:len(rb)]
 		copy(rb1, rb)
 		var rem B
 		var l string
-		if l, rb, err = envelopes.Identify(rb); chk.E(err) {
+		if l, rb, err = envelopes.Identify(rb); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if l != L {
 			t.Fatalf("invalid sentinel %s, expect %s", l, L)
 		}
 		req2 := New()
-		if rem, err = req2.UnmarshalJSON(rb); chk.E(err) {
+		if rem, err = req2.UnmarshalJSON(rb); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) > 0 {
 			t.Fatalf("unmarshal failed, remainder\n%d %s",
 				len(rem), rem)
 		}
-		if rb2, err = req2.MarshalJSON(rb2); chk.E(err) {
+		if rb2, err = req2.MarshalJSON(rb2); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if !equals(rb1, rb2) {
+		if !Equals(rb1, rb2) {
 			if len(rb1) != len(rb2) {
 				t.Fatalf("unmarshal failed, different lengths\n%d %s\n%d %s\n",
 					len(rb1), rb1, len(rb2), rb2)

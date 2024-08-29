@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"io"
 	"net/http"
+	. "nostr.mleku.dev"
 	"strings"
 	"sync"
 	"time"
@@ -21,7 +22,7 @@ type MessageType int
 // Serv is a wrapper around a fasthttp/websocket with mutex locking and NIP-42 IsAuthed support
 // for handling inbound connections from clients.
 type Serv struct {
-	Ctx       context.T
+	Ctx       Ctx
 	Cancel    context.F
 	Conn      *websocket.Conn
 	remote    atomic.String
@@ -33,7 +34,7 @@ type Serv struct {
 	Authed    qu.C
 }
 
-func New(c context.T, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *Serv) {
+func New(c Ctx, conn *websocket.Conn, r *http.Request, maxMsg int) (ws *Serv) {
 	// authPubKey must be initialized with a zero length slice so it can be detected when it
 	// hasn't been loaded.
 	var authPubKey atomic.Value
@@ -69,9 +70,9 @@ func (ws *Serv) write(t MessageType, b B) (err E) {
 	ws.mutex.Lock()
 	defer ws.mutex.Unlock()
 	if len(b) != 0 {
-		log.T.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
+		Log.T.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
 	}
-	chk.E(ws.Conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
+	Chk.E(ws.Conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
 	return ws.Conn.WriteMessage(int(t), b)
 }
 
@@ -80,7 +81,7 @@ func (ws *Serv) WriteTextMessage(b B) (err E) { return ws.write(websocket.TextMe
 
 // Write implements the standard io.Writer interface.
 func (ws *Serv) Write(b []byte) (n int, err error) {
-	if err = ws.WriteTextMessage(b); chk.E(err) {
+	if err = ws.WriteTextMessage(b); Chk.E(err) {
 		return
 	}
 	n = len(b)
@@ -97,16 +98,16 @@ func (ws *Serv) generateChallenge() (challenge S) {
 	var err error
 	// create a new challenge for this connection
 	cb := make([]byte, ChallengeLength)
-	if _, err = rand.Read(cb); chk.E(err) {
+	if _, err = rand.Read(cb); Chk.E(err) {
 		// i never know what to do for this case, panic? usually just ignore, it should never happen
 		panic(err)
 	}
 	var b5 B
-	if b5, err = bech32encoding.ConvertForBech32(cb); chk.E(err) {
+	if b5, err = bech32encoding.ConvertForBech32(cb); Chk.E(err) {
 		return
 	}
 	var encoded B
-	if encoded, err = bech32.Encode(bech32.B(ChallengeHRP), b5); chk.E(err) {
+	if encoded, err = bech32.Encode(bech32.B(ChallengeHRP), b5); Chk.E(err) {
 		return
 	}
 	challenge = S(encoded)

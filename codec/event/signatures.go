@@ -3,15 +3,16 @@ package event
 import (
 	sch "ec.mleku.dev/v2/schnorr"
 	k1 "ec.mleku.dev/v2/secp256k1"
-	"nostr.mleku.dev"
+	. "nostr.mleku.dev"
+	"nostr.mleku.dev/crypto"
 	"nostr.mleku.dev/crypto/p256k"
 )
 
 // Sign the event using the nostr.Signer. Uses github.com/bitcoin-core/secp256k1 if available for much faster
 // signatures.
-func (ev *T) Sign(keys nostr.Signer) (err error) {
+func (ev *T) Sign(keys crypto.Signer) (err error) {
 	ev.ID = ev.GetIDBytes()
-	if ev.Sig, err = keys.Sign(ev.ID); chk.E(err) {
+	if ev.Sig, err = keys.Sign(ev.ID); Chk.E(err) {
 		return
 	}
 	ev.PubKey = keys.Pub()
@@ -22,20 +23,20 @@ func (ev *T) Sign(keys nostr.Signer) (err error) {
 // github.com/bitcoin-core/secp256k1 if available for faster verification.
 func (ev *T) Verify() (valid bool, err error) {
 	keys := p256k.Signer{}
-	if err = keys.InitPub(ev.PubKey); chk.E(err) {
+	if err = keys.InitPub(ev.PubKey); Chk.E(err) {
 		return
 	}
-	if valid, err = keys.Verify(ev.ID, ev.Sig); chk.E(err) {
+	if valid, err = keys.Verify(ev.ID, ev.Sig); Chk.E(err) {
 		// check that this isn't because of a bogus ID
 		id := ev.GetIDBytes()
-		if !equals(id, ev.ID) {
-			log.E.Ln("event ID incorrect")
+		if !Equals(id, ev.ID) {
+			Log.E.Ln("event ID incorrect")
 			ev.ID = id
 			err = nil
-			if valid, err = keys.Verify(ev.ID, ev.Sig); chk.E(err) {
+			if valid, err = keys.Verify(ev.ID, ev.Sig); Chk.E(err) {
 				return
 			}
-			err = errorf.W("event ID incorrect but signature is valid on correct ID")
+			err = Errorf.W("event ID incorrect but signature is valid on correct ID")
 		}
 		return
 	}
@@ -52,7 +53,7 @@ func (ev *T) SignWithSecKey(sk *k1.SecretKey,
 	// sign the event.
 	var sig *sch.Signature
 	ev.ID = ev.GetIDBytes()
-	if sig, err = sch.Sign(sk, ev.ID, so...); chk.D(err) {
+	if sig, err = sch.Sign(sk, ev.ID, so...); Chk.D(err) {
 		return
 	}
 	// we know secret key is good so we can generate the public key.
@@ -68,14 +69,14 @@ func (ev *T) SignWithSecKey(sk *k1.SecretKey,
 func (ev *T) CheckSignature() (valid bool, err error) {
 	// parse pubkey bytes.
 	var pk *k1.PublicKey
-	if pk, err = sch.ParsePubKey(ev.PubKey); chk.D(err) {
-		err = errorf.E("event has invalid pubkey '%0x': %v", ev.PubKey, err)
+	if pk, err = sch.ParsePubKey(ev.PubKey); Chk.D(err) {
+		err = Errorf.E("event has invalid pubkey '%0x': %v", ev.PubKey, err)
 		return
 	}
 	// parse signature bytes.
 	var sig *sch.Signature
-	if sig, err = sch.ParseSignature(ev.Sig); chk.D(err) {
-		err = errorf.E("failed to parse signature:\n%d %s\n%v", len(ev.Sig),
+	if sig, err = sch.ParseSignature(ev.Sig); Chk.D(err) {
+		err = Errorf.E("failed to parse signature:\n%d %s\n%v", len(ev.Sig),
 			ev.Sig, err)
 		return
 	}

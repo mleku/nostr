@@ -4,6 +4,7 @@ import "C"
 import (
 	"bytes"
 	"io"
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/enveloper"
@@ -33,7 +34,7 @@ func NewRequest(id *sid.T, filters *filters.T) *Request {
 func (en *Request) Label() string { return L }
 func (en *Request) Write(w io.Writer) (err E) {
 	var b B
-	if b, err = en.MarshalJSON(b); chk.E(err) {
+	if b, err = en.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	_, err = w.Write(b)
@@ -45,11 +46,11 @@ func (en *Request) MarshalJSON(dst B) (b B, err error) {
 	b, err = envelopes.Marshal(b, L,
 		func(bst B) (o B, err error) {
 			o = bst
-			if o, err = en.ID.MarshalJSON(o); chk.E(err) {
+			if o, err = en.ID.MarshalJSON(o); Chk.E(err) {
 				return
 			}
 			o = append(o, ',')
-			if o, err = en.Filters.MarshalJSON(o); chk.E(err) {
+			if o, err = en.Filters.MarshalJSON(o); Chk.E(err) {
 				return
 			}
 			return
@@ -59,17 +60,17 @@ func (en *Request) MarshalJSON(dst B) (b B, err error) {
 
 func (en *Request) UnmarshalJSON(b B) (r B, err error) {
 	r = b
-	if en.ID, err = sid.New(B{0}); chk.E(err) {
+	if en.ID, err = sid.New(B{0}); Chk.E(err) {
 		return
 	}
-	if r, err = en.ID.UnmarshalJSON(r); chk.E(err) {
+	if r, err = en.ID.UnmarshalJSON(r); Chk.E(err) {
 		return
 	}
 	en.Filters = filters.New()
-	if r, err = en.Filters.UnmarshalJSON(r); chk.E(err) {
+	if r, err = en.Filters.UnmarshalJSON(r); Chk.E(err) {
 		return
 	}
-	if r, err = envelopes.SkipToTheEnd(r); chk.E(err) {
+	if r, err = envelopes.SkipToTheEnd(r); Chk.E(err) {
 		return
 	}
 	return
@@ -77,7 +78,7 @@ func (en *Request) UnmarshalJSON(b B) (r B, err error) {
 
 func ParseRequest(b B) (t *Request, rem B, err E) {
 	t = New()
-	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+	if rem, err = t.UnmarshalJSON(b); Chk.E(err) {
 		return
 	}
 	return
@@ -98,7 +99,7 @@ func NewResponseFrom(id *sid.T, cnt int, approx bool) *Response {
 func (en *Response) Label() string { return L }
 func (en *Response) Write(w io.Writer) (err E) {
 	var b B
-	if b, err = en.MarshalJSON(b); chk.E(err) {
+	if b, err = en.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	_, err = w.Write(b)
@@ -110,7 +111,7 @@ func (en *Response) MarshalJSON(dst B) (b B, err error) {
 	b, err = envelopes.Marshal(b, L,
 		func(bst B) (o B, err error) {
 			o = bst
-			if o, err = en.ID.MarshalJSON(o); chk.E(err) {
+			if o, err = en.ID.MarshalJSON(o); Chk.E(err) {
 				return
 			}
 			o = append(o, ',')
@@ -145,7 +146,7 @@ func (en *Response) UnmarshalJSON(b B) (r B, err error) {
 						}
 					}
 					if en.ID, err = sid.
-						New(text.NostrUnescape(r[:i])); chk.E(err) {
+						New(text.NostrUnescape(r[:i])); Chk.E(err) {
 
 						return
 					}
@@ -160,7 +161,7 @@ func (en *Response) UnmarshalJSON(b B) (r B, err error) {
 			} else if !inCount {
 				inCount = true
 				n := ints.New(0)
-				if r, err = n.UnmarshalJSON(r); chk.E(err) {
+				if r, err = n.UnmarshalJSON(r); Chk.E(err) {
 					return
 				}
 				en.Count = int(n.Uint64())
@@ -186,7 +187,7 @@ func (en *Response) UnmarshalJSON(b B) (r B, err error) {
 
 func Parse(b B) (t *Response, rem B, err E) {
 	t = NewResponse()
-	if rem, err = t.UnmarshalJSON(b); chk.E(err) {
+	if rem, err = t.UnmarshalJSON(b); Chk.E(err) {
 		return
 	}
 	return

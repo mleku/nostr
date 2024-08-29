@@ -1,5 +1,9 @@
 package text
 
+import (
+	. "nostr.mleku.dev"
+)
+
 // NostrEscape for JSON encoding according to RFC8259.
 //
 // This is the efficient implementation based on the NIP-01 specification:

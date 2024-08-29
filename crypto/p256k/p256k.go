@@ -4,7 +4,8 @@ package p256k
 
 import (
 	btcec "ec.mleku.dev/v2"
-	nostr "nostr.mleku.dev"
+	. "nostr.mleku.dev"
+	"nostr.mleku.dev/crypto"
 )
 
 // Signer implements the nostr.Signer interface.
@@ -22,13 +23,13 @@ type Signer struct {
 	skb, pkb    B
 }
 
-var _ nostr.Signer = &Signer{}
+var _ crypto.Signer = &Signer{}
 
 func (s *Signer) Generate() (err E) {
 	var cs *Sec
 	var cx *XPublicKey
 	var cp *PublicKey
-	if s.skb, s.pkb, cs, cx, cp, err = Generate(); chk.E(err) {
+	if s.skb, s.pkb, cs, cx, cp, err = Generate(); Chk.E(err) {
 		return
 	}
 	s.SecretKey = &cs.Key
@@ -42,9 +43,9 @@ func (s *Signer) InitSec(skb B) (err error) {
 	var cs *Sec
 	var cx *XPublicKey
 	var cp *PublicKey
-	if s.pkb, cs, cx, cp, err = FromSecretBytes(skb); chk.E(err) {
+	if s.pkb, cs, cx, cp, err = FromSecretBytes(skb); Chk.E(err) {
 		if err.Error() != "provided secret generates a public key with odd Y coordinate, fixed version returned" {
-			log.E.Ln(err)
+			Log.E.Ln(err)
 			return
 		}
 	}
@@ -58,7 +59,7 @@ func (s *Signer) InitSec(skb B) (err error) {
 
 func (s *Signer) InitPub(pub B) (err error) {
 	var up *Pub
-	if up, err = PubFromBytes(pub); chk.E(err) {
+	if up, err = PubFromBytes(pub); Chk.E(err) {
 		return
 	}
 	s.PublicKey = &up.Key
@@ -72,11 +73,11 @@ func (s *Signer) ECPub() (b B) { return s.pkb }
 
 func (s *Signer) Sign(msg B) (sig B, err error) {
 	if s.SecretKey == nil {
-		err = errorf.E("p256k: Signer secret not initialized")
+		err = Errorf.E("p256k: Signer secret not initialized")
 		return
 	}
 	u := ToUchar(msg)
-	if sig, err = Sign(u, s.SecretKey); chk.E(err) {
+	if sig, err = Sign(u, s.SecretKey); Chk.E(err) {
 		return
 	}
 	return
@@ -84,19 +85,19 @@ func (s *Signer) Sign(msg B) (sig B, err error) {
 
 func (s *Signer) Verify(msg, sig B) (valid bool, err error) {
 	if s.PublicKey == nil {
-		err = errorf.E("p256k: PubKey not initialized")
+		err = Errorf.E("p256k: PubKey not initialized")
 		return
 	}
 	var uMsg, uSig *Uchar
-	if uMsg, err = Msg(msg); chk.E(err) {
+	if uMsg, err = Msg(msg); Chk.E(err) {
 		return
 	}
-	if uSig, err = Sig(sig); chk.E(err) {
+	if uSig, err = Sig(sig); Chk.E(err) {
 		return
 	}
 	valid = Verify(uMsg, uSig, s.PublicKey)
 	if !valid {
-		err = errorf.E("p256k: invalid signature")
+		err = Errorf.E("p256k: invalid signature")
 	}
 	return
 }
@@ -105,8 +106,8 @@ func (s *Signer) Zero() { Zero(s.SecretKey) }
 func (s *Signer) ECDH(xkb B) (secret B, err error) {
 	var pubKey *btcec.PublicKey
 	k2 := append(B{2}, xkb...)
-	if pubKey, err = btcec.ParsePubKey(k2); chk.E(err) {
-		err = errorf.E("error parsing receiver public key '%0x': %w", k2, err)
+	if pubKey, err = btcec.ParsePubKey(k2); Chk.E(err) {
+		err = Errorf.E("error parsing receiver public key '%0x': %w", k2, err)
 		return
 	}
 	secret = btcec.GenerateSharedSecret(s.BTCECSec, pubKey)
@@ -115,5 +116,5 @@ func (s *Signer) ECDH(xkb B) (secret B, err error) {
 
 func (s *Signer) Negate() {
 	Negate(s.skb)
-	chk.E(s.InitSec(s.skb))
+	Chk.E(s.InitSec(s.skb))
 }

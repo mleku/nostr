@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"hash"
+	. "nostr.mleku.dev"
 	"strings"
 	"testing"
 
@@ -1147,7 +1148,7 @@ func TestMaxLength(t *testing.T) {
 	conversationKey, _ := GenerateConversationKey(pub2, S(sk1))
 	plaintext := strings.Repeat("a", MaxPlaintextSize)
 	encrypted, err := Encrypt(plaintext, conversationKey, WithCustomNonce(salt))
-	if chk.E(err) {
+	if Chk.E(err) {
 		t.Error(err)
 	}
 

@@ -2,6 +2,7 @@ package timestamp
 
 import (
 	"encoding/binary"
+	. "nostr.mleku.dev"
 	"time"
 	"unsafe"
 
@@ -66,7 +67,7 @@ func FromBytes(b []byte) *T {
 func FromVarint(b B) (t *T, rem B, err error) {
 	n, read := binary.Varint(b)
 	if read < 1 {
-		err = errorf.E("failed to decode varint timestamp %v", b)
+		err = Errorf.E("failed to decode varint timestamp %v", b)
 		return
 	}
 	tt := T(n)
@@ -83,7 +84,7 @@ func (t *T) String() (s S) {
 	b := make([]byte, 0, 20)
 	var err error
 	tt := ints.New(t.U64())
-	if b, err = tt.MarshalJSON(b); chk.E(err) {
+	if b, err = tt.MarshalJSON(b); Chk.E(err) {
 		return
 	}
 	return unsafe.String(&b[0], len(b))

@@ -1,6 +1,7 @@
 package kind
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"lukechampine.com/frand"
@@ -17,7 +18,7 @@ func TestMarshalUnmarshal(t *testing.T) {
 		mk[i] = make(B, 0, 5) // 16 bits max 65535 = 5 characters
 	}
 	for i := range k {
-		if mk[i], err = k[i].MarshalJSON(mk[i]); chk.E(err) {
+		if mk[i], err = k[i].MarshalJSON(mk[i]); Chk.E(err) {
 			t.Fatal(err)
 		}
 	}
@@ -27,12 +28,11 @@ func TestMarshalUnmarshal(t *testing.T) {
 	}
 	for i := range k2 {
 		var r B
-		if r, err = k2[i].UnmarshalJSON(mk[i]);chk.E(err){
+		if r, err = k2[i].UnmarshalJSON(mk[i]); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if len(r)!=0 {
+		if len(r) != 0 {
 			t.Fatalf("remainder after unmarshal: '%s'", r)
 		}
 	}
 }
-

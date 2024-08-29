@@ -1,6 +1,7 @@
 package kinds
 
 import (
+	. "nostr.mleku.dev"
 	"testing"
 
 	"lukechampine.com/frand"
@@ -14,12 +15,12 @@ func TestUnmarshalKindsArray(t *testing.T) {
 	}
 	var dst B
 	var err error
-	if dst, err = k.MarshalJSON(dst); chk.E(err) {
+	if dst, err = k.MarshalJSON(dst); Chk.E(err) {
 		t.Fatal(err)
 	}
 	k2 := &T{}
 	var rem B
-	if rem, err = k2.UnmarshalJSON(dst); chk.E(err) {
+	if rem, err = k2.UnmarshalJSON(dst); Chk.E(err) {
 		return
 	}
 	if len(rem) > 0 {

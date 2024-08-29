@@ -2,6 +2,7 @@ package enveloper
 
 import (
 	"io"
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec"
 )

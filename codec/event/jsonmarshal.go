@@ -1,6 +1,7 @@
 package event
 
 import (
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/text"
 	"util.mleku.dev/hex"
 )
@@ -18,7 +19,7 @@ func (ev *T) MarshalJSON(dst B) (b B, err error) {
 	dst = append(dst, ',')
 	// CreatedAt
 	dst = text.JSONKey(dst, jCreatedAt)
-	if dst, err = ev.CreatedAt.MarshalJSON(dst); chk.E(err) {
+	if dst, err = ev.CreatedAt.MarshalJSON(dst); Chk.E(err) {
 		return
 	}
 	dst = append(dst, ',')

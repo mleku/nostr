@@ -2,6 +2,7 @@ package text
 
 import (
 	"io"
+	. "nostr.mleku.dev"
 
 	"github.com/templexxx/xhex"
 	"nostr.mleku.dev/codec/kind"
@@ -46,10 +47,10 @@ func UnmarshalHex(b B) (h B, rem B, err error) {
 	}
 	l := len(h)
 	if l%2 != 0 {
-		err = errorf.E("invalid length for hex: %d, %0x", len(h), h)
+		err = Errorf.E("invalid length for hex: %d, %0x", len(h), h)
 		return
 	}
-	if err = xhex.Decode(h, h); chk.E(err) {
+	if err = xhex.Decode(h, h); Chk.E(err) {
 		return
 	}
 	h = h[:l/2]
@@ -95,7 +96,7 @@ func UnmarshalQuoted(b B) (content, rem B, err error) {
 			//
 			// backspace, tab, newline, form feed or carriage return.
 			case '\b', '\t', '\n', '\f', '\r':
-				err = errorf.E("invalid character '%s' in quoted string",
+				err = Errorf.E("invalid character '%s' in quoted string",
 					NostrEscape(nil, rem[:1]))
 				return
 			}
@@ -132,15 +133,15 @@ func UnmarshalHexArray(b B, size int) (t []B, rem B, err error) {
 				continue
 			} else if rem[0] == ']' {
 				rem = rem[1:]
-				log.I.F("%s", rem)
+				Log.I.F("%s", rem)
 				return
 			} else if rem[0] == '"' {
 				var h B
-				if h, rem, err = UnmarshalHex(rem); chk.E(err) {
+				if h, rem, err = UnmarshalHex(rem); Chk.E(err) {
 					return
 				}
 				if len(h) != size {
-					err = errorf.E("invalid hex array size, got %d expect %d",
+					err = Errorf.E("invalid hex array size, got %d expect %d",
 						len(h), size)
 					return
 				}
@@ -171,7 +172,7 @@ func UnmarshalStringArray(b B) (t []B, rem B, err error) {
 				return
 			} else if rem[0] == '"' {
 				var h B
-				if h, rem, err = UnmarshalQuoted(rem); chk.E(err) {
+				if h, rem, err = UnmarshalQuoted(rem); Chk.E(err) {
 					return
 				}
 				t = append(t, h)
@@ -215,7 +216,7 @@ func UnmarshalKindsArray(b B) (k *kinds.T, rem B, err error) {
 				continue
 			}
 			kk := ints.New(0)
-			if rem, err = kk.UnmarshalJSON(rem); chk.E(err) {
+			if rem, err = kk.UnmarshalJSON(rem); Chk.E(err) {
 				return
 			}
 			k.K = append(k.K, kind.New(kk.Uint16()))
@@ -226,8 +227,8 @@ func UnmarshalKindsArray(b B) (k *kinds.T, rem B, err error) {
 		}
 	}
 	if !openedBracket {
-		log.I.F("\n%v\n%s", k, rem)
-		return nil, nil, errorf.E("kinds: failed to unmarshal\n%s\n%s\n%s", k,
+		Log.I.F("\n%v\n%s", k, rem)
+		return nil, nil, Errorf.E("kinds: failed to unmarshal\n%s\n%s\n%s", k,
 			b, rem)
 	}
 	return
@@ -252,7 +253,7 @@ func UnmarshalBool(src B) (rem B, truth bool, err error) {
 				err = io.EOF
 				return
 			}
-			if equals(t, rem[i:i+len(t)]) {
+			if Equals(t, rem[i:i+len(t)]) {
 				truth = true
 				rem = rem[i+len(t):]
 				return
@@ -263,7 +264,7 @@ func UnmarshalBool(src B) (rem B, truth bool, err error) {
 				err = io.EOF
 				return
 			}
-			if equals(f, rem[i:i+len(f)]) {
+			if Equals(f, rem[i:i+len(f)]) {
 				rem = rem[i+len(f):]
 				return
 			}

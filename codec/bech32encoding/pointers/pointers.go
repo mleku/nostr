@@ -1,6 +1,7 @@
 package pointers
 
 import (
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/eventid"
 	"nostr.mleku.dev/codec/kind"
 )

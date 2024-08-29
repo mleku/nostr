@@ -2,6 +2,7 @@ package subscriptionid
 
 import (
 	"crypto/rand"
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/bech32"
 	"nostr.mleku.dev/codec/text"
@@ -26,7 +27,7 @@ func New[V S | B](s V) (*T, error) {
 	} else {
 		// remove invalid return value
 		si.T = si.T[:0]
-		return si, errorf.E(
+		return si, Errorf.E(
 			"invalid subscription ID - length %d < 1 or > 64", len(si.T))
 	}
 }
@@ -38,19 +39,19 @@ func NewStd() (t *T) {
 	var n int
 	var err error
 	src := make(B, StdLen)
-	if n, err = rand.Read(src); chk.E(err) {
+	if n, err = rand.Read(src); Chk.E(err) {
 		return
 	}
 	if n != StdLen {
-		err = errorf.E("only read %d of %d bytes from crypto/rand", n, StdLen)
+		err = Errorf.E("only read %d of %d bytes from crypto/rand", n, StdLen)
 		return
 	}
 	var bits5 B
-	if bits5, err = bech32.ConvertBits(src, 8, 5, true); chk.D(err) {
+	if bits5, err = bech32.ConvertBits(src, 8, 5, true); Chk.D(err) {
 		return nil
 	}
 	var dst B
-	if dst, err = bech32.Encode(B(StdHRP), bits5); chk.E(err) {
+	if dst, err = bech32.Encode(B(StdHRP), bits5); Chk.E(err) {
 		return
 	}
 	t = &T{T: dst}
@@ -60,7 +61,7 @@ func NewStd() (t *T) {
 func (si *T) MarshalJSON(dst B) (b B, err error) {
 	ue := text.NostrEscape(nil, si.T)
 	if len(ue) < 1 || len(ue) > 64 {
-		err = errorf.E("invalid subscription ID, must be between 1 and 64 "+
+		err = Errorf.E("invalid subscription ID, must be between 1 and 64 "+
 			"characters, got %d (possibly due to escaping)", len(ue))
 		return
 	}

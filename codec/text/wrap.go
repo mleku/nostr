@@ -1,5 +1,9 @@
 package text
 
+import (
+	. "nostr.mleku.dev"
+)
+
 type AppendBytesClosure func(dst, src B) B
 
 type AppendClosure func(dst B) B

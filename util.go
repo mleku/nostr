@@ -2,7 +2,6 @@ package nostr
 
 import (
 	"bytes"
-
 	"util.mleku.dev/context"
 	"util.mleku.dev/lol"
 )
@@ -16,6 +15,13 @@ type (
 )
 
 var (
-	log, chk, errorf = lol.Main.Log, lol.Main.Check, lol.Main.Errorf
-	equals           = bytes.Equal
+	Log, Chk, Errorf = lol.Main.Log, lol.Main.Check, lol.Main.Errorf
+	Equals           = bytes.Equal
 )
+
+func StringSliceToByteSlice(ss []S) (bs []B) {
+	for _, s := range ss {
+		bs = append(bs, B(s))
+	}
+	return
+}

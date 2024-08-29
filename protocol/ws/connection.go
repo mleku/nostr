@@ -6,10 +6,10 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
+	. "nostr.mleku.dev"
 
 	"github.com/gobwas/httphead"
 	"github.com/gobwas/ws"
@@ -40,7 +40,7 @@ func NewConnection(ctx context.Context, url string, requestHeader http.Header,
 	}
 	conn, _, hs, err := dialer.Dial(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial: %w", err)
+		return nil, Errorf.E("failed to dial: %w", err)
 	}
 
 	enableCompression := false
@@ -84,7 +84,7 @@ func NewConnection(ctx context.Context, url string, requestHeader http.Header,
 		flateWriter = wsflate.NewWriter(nil, func(w io.Writer) wsflate.Compressor {
 			fw, err := flate.NewWriter(w, 4)
 			if err != nil {
-				log.E.F("Failed to create flate writer: %v", err)
+				Log.E.F("Failed to create flate writer: %v", err)
 			}
 			return fw
 		})
@@ -116,20 +116,20 @@ func (c *Connection) WriteMessage(ctx context.Context, data []byte) error {
 	if c.msgStateW.IsCompressed() && c.enableCompression {
 		c.flateWriter.Reset(c.writer)
 		if _, err := io.Copy(c.flateWriter, bytes.NewReader(data)); err != nil {
-			return fmt.Errorf("failed to write message: %w", err)
+			return Errorf.E("failed to write message: %w", err)
 		}
 
 		if err := c.flateWriter.Close(); err != nil {
-			return fmt.Errorf("failed to close flate writer: %w", err)
+			return Errorf.E("failed to close flate writer: %w", err)
 		}
 	} else {
 		if _, err := io.Copy(c.writer, bytes.NewReader(data)); err != nil {
-			return fmt.Errorf("failed to write message: %w", err)
+			return Errorf.E("failed to write message: %w", err)
 		}
 	}
 
 	if err := c.writer.Flush(); err != nil {
-		return fmt.Errorf("failed to flush writer: %w", err)
+		return Errorf.E("failed to flush writer: %w", err)
 	}
 
 	return nil
@@ -146,12 +146,12 @@ func (c *Connection) ReadMessage(ctx context.Context, buf io.Writer) error {
 		h, err := c.reader.NextFrame()
 		if err != nil {
 			c.conn.Close()
-			return fmt.Errorf("failed to advance frame: %w", err)
+			return Errorf.E("failed to advance frame: %w", err)
 		}
 
 		if h.OpCode.IsControl() {
 			if err := c.controlHandler(h, c.reader); err != nil {
-				return fmt.Errorf("failed to handle control frame: %w", err)
+				return Errorf.E("failed to handle control frame: %w", err)
 			}
 		} else if h.OpCode == ws.OpBinary ||
 			h.OpCode == ws.OpText {
@@ -159,18 +159,18 @@ func (c *Connection) ReadMessage(ctx context.Context, buf io.Writer) error {
 		}
 
 		if err := c.reader.Discard(); err != nil {
-			return fmt.Errorf("failed to discard: %w", err)
+			return Errorf.E("failed to discard: %w", err)
 		}
 	}
 
 	if c.msgStateR.IsCompressed() && c.enableCompression {
 		c.flateReader.Reset(c.reader)
 		if _, err := io.Copy(buf, c.flateReader); err != nil {
-			return fmt.Errorf("failed to read message: %w", err)
+			return Errorf.E("failed to read message: %w", err)
 		}
 	} else {
 		if _, err := io.Copy(buf, c.reader); err != nil {
-			return fmt.Errorf("failed to read message: %w", err)
+			return Errorf.E("failed to read message: %w", err)
 		}
 	}
 

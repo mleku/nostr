@@ -3,6 +3,7 @@ package eventenvelope
 import (
 	"bufio"
 	"bytes"
+	. "nostr.mleku.dev"
 	"testing"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -18,7 +19,7 @@ func TestSubmission(t *testing.T) {
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ev := event.New()
-		if _, err = ev.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ev.UnmarshalJSON(b); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
@@ -27,28 +28,28 @@ func TestSubmission(t *testing.T) {
 		}
 		rem = rem[:0]
 		ea := NewSubmissionWith(ev)
-		if rem, err = ea.MarshalJSON(rem); chk.E(err) {
+		if rem, err = ea.MarshalJSON(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		c = append(c, rem...)
 		var l string
-		if l, rem, err = envelopes.Identify(rem); chk.E(err) {
+		if l, rem, err = envelopes.Identify(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if l != L {
 			t.Fatalf("invalid sentinel %s, expect %s", l, L)
 		}
-		if rem, err = ea.UnmarshalJSON(rem); chk.E(err) {
+		if rem, err = ea.UnmarshalJSON(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
 			t.Fatalf("some of input remaining after marshal/unmarshal: '%s'",
 				rem)
 		}
-		if out, err = ea.MarshalJSON(out); chk.E(err) {
+		if out, err = ea.MarshalJSON(out); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if !equals(out, c) {
+		if !Equals(out, c) {
 			t.Fatalf("mismatched output\n%s\n\n%s\n", c, out)
 		}
 		c, out = c[:0], out[:0]
@@ -62,7 +63,7 @@ func TestResult(t *testing.T) {
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		ev := event.New()
-		if _, err = ev.UnmarshalJSON(b); chk.E(err) {
+		if _, err = ev.UnmarshalJSON(b); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
@@ -70,28 +71,28 @@ func TestResult(t *testing.T) {
 				rem)
 		}
 		ea := NewResultWith(subscriptionid.NewStd(), ev)
-		if rem, err = ea.MarshalJSON(rem); chk.E(err) {
+		if rem, err = ea.MarshalJSON(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		c = append(c, rem...)
 		var l string
-		if l, rem, err = envelopes.Identify(rem); chk.E(err) {
+		if l, rem, err = envelopes.Identify(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if l != L {
 			t.Fatalf("invalid sentinel %s, expect %s", l, L)
 		}
-		if rem, err = ea.UnmarshalJSON(rem); chk.E(err) {
+		if rem, err = ea.UnmarshalJSON(rem); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if len(rem) != 0 {
 			t.Fatalf("some of input remaining after marshal/unmarshal: '%s'",
 				rem)
 		}
-		if out, err = ea.MarshalJSON(out); chk.E(err) {
+		if out, err = ea.MarshalJSON(out); Chk.E(err) {
 			t.Fatal(err)
 		}
-		if !equals(out, c) {
+		if !Equals(out, c) {
 			t.Fatalf("mismatched output\n%s\n\n%s\n", c, out)
 		}
 		rem, c, out = rem[:0], c[:0], out[:0]
