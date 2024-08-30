@@ -2,6 +2,7 @@ package text
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"github.com/templexxx/xhex"
@@ -133,7 +134,6 @@ func UnmarshalHexArray(b B, size int) (t []B, rem B, err error) {
 				continue
 			} else if rem[0] == ']' {
 				rem = rem[1:]
-				Log.I.F("%s", rem)
 				return
 			} else if rem[0] == '"' {
 				var h B

@@ -2,6 +2,7 @@ package nostr
 
 import (
 	"bytes"
+
 	"util.mleku.dev/context"
 	"util.mleku.dev/lol"
 )

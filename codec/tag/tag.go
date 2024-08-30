@@ -2,6 +2,7 @@ package tag
 
 import (
 	"bytes"
+
 	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/text"
@@ -52,6 +53,14 @@ func New[V S | B](fields ...V) (t *T) {
 	t = &T{Field: make([]BS[B], len(fields))}
 	for i, field := range fields {
 		t.Field[i] = B(field)
+	}
+	return
+}
+
+func FromBytesSlice(fields ...B) (t *T) {
+	t = &T{Field: make([]BS[B], len(fields))}
+	for i, field := range fields {
+		t.Field[i] = field
 	}
 	return
 }

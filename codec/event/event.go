@@ -36,6 +36,7 @@ type T struct {
 	Sig B `json:"sig"`
 }
 
+// Ts is an array of T that sorts in reverse chronological order.
 type Ts []*T
 
 func (ev Ts) Len() int           { return len(ev) }

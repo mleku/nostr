@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	. "nostr.mleku.dev"
 	"sort"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/tag"
 )
@@ -55,21 +56,19 @@ func (t *T) Equal(ta *T) bool {
 	return true
 }
 
-// Less evaluates two tags and returns if one is less than the other. Fields are lexicographically compared, so a < b.
-//
-// If two tags are greater than or equal up to the length of the shortest.
+// Less returns which tag's first element is first lexicographically
 func (t *T) Less(i, j int) (less bool) {
-	var field int
-	for {
-		// if they are greater or equal, the longer one is greater because nil is less than anything.
-		if t.T[i].Len() <= field || t.T[j].Len() <= field {
-			return t.T[i].Len() < t.T[j].Len()
-		}
-		if bytes.Compare(t.T[i].Field[field], t.T[j].Field[field]) < 0 {
-			return true
-		}
-		field++
+	a, b := t.T[i], t.T[j]
+	if len(a.Field) < 1 && len(b.Field) < 1 {
+		return false // they are equal
 	}
+	if len(a.Field) < 1 || len(b.Field) < 1 {
+		return len(a.Field) < len(b.Field)
+	}
+	if bytes.Compare(a.Field[0], b.Field[0]) < 0 {
+		return true
+	}
+	return
 }
 
 func (t *T) Swap(i, j int) {

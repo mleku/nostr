@@ -3,7 +3,6 @@ package filter
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"sort"
 
 	"ec.mleku.dev/v2/schnorr"
@@ -76,7 +75,6 @@ var (
 	IDs     = B("ids")
 	Kinds   = B("kinds")
 	Authors = B("authors")
-	Tags    = B("tags")
 	Since   = B("since")
 	Until   = B("until")
 	Limit   = B("limit")
@@ -115,14 +113,58 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 		dst = text.MarshalHexArray(dst, f.Authors.ToByteSlice())
 	}
 	if f.Tags != nil && len(f.Tags.T) > 0 {
-		if first {
-			dst = append(dst, ',')
-		} else {
-			first = true
-		}
-		dst = text.JSONKey(dst, Tags)
-		if dst, err = f.Tags.MarshalJSON(dst); Chk.E(err) {
-			return
+		// if first {
+		// 	dst = append(dst, ',')
+		// } else {
+		// 	first = true
+		// }
+		// tags are stored as tags with the initial element the "#a" and the rest the list in
+		// each element of the tags list. eg:
+		//
+		//     [["#p","<pubkey1>","<pubkey3"],["#t","hashtag","stuff"]]
+		//
+		for _, tg := range f.Tags.T {
+			if tg == nil {
+				// nothing here
+				continue
+			}
+			if len(tg.Field) < 1 || len(tg.Field[0]) != 2 {
+				// if there is no values, skip; the "key" field must be 2 characters long,
+				continue
+			}
+			tKey := tg.Field[0]
+			if tKey[0] != '#' &&
+				(tKey[1] < 'a' && tKey[1] > 'z' || tKey[1] < 'A' && tKey[1] > 'Z') {
+				// first "key" field must begin with '#' and second be alpha
+				continue
+			}
+			values := tg.Field[1:]
+			if len(values) == 0 {
+				continue
+			}
+			if first {
+				dst = append(dst, ',')
+			} else {
+				first = true
+			}
+			// append the key
+			dst = append(dst, '"', tg.Field[0][0], tg.Field[0][1], '"', ':')
+			dst = append(dst, '[')
+			for i, value := range values {
+				_ = i
+				dst = append(dst, '"')
+				if tKey[1] == 'e' || tKey[1] == 'p' {
+					// event and pubkey tags are binary 32 bytes
+					dst = hex.EncAppend(dst, value)
+				} else {
+					dst = append(dst, value...)
+				}
+				dst = append(dst, '"')
+				if i < len(values)-1 {
+					dst = append(dst, ',')
+				}
+			}
+			dst = append(dst, ']')
 		}
 	}
 	if f.Since != nil && f.Since.U64() > 0 {
@@ -226,8 +268,10 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 			}
 			switch key[0] {
 			case '#':
-				r = r[1:]
-				switch r[0] {
+				k := make(B, len(key))
+				copy(k, key)
+				// r = r[1:]
+				switch key[1] {
 				case 'e', 'p':
 					// the tags must all be 64 character hexadecimal
 					var ff []B
@@ -235,7 +279,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 						sha256.Size); Chk.E(err) {
 						return
 					}
-					ff = append([]B{key}, ff...)
+					ff = append([]B{k}, ff...)
 					f.Tags.T = append(f.Tags.T, tag.New(ff...))
 				default:
 					// other types of tags can be anything
@@ -243,7 +287,7 @@ func (f *T) UnmarshalJSON(b B) (r B, err error) {
 					if ff, r, err = text.UnmarshalStringArray(r); Chk.E(err) {
 						return
 					}
-					ff = append([]B{key}, ff...)
+					ff = append([]B{k}, ff...)
 					f.Tags.T = append(f.Tags.T, tag.New(ff...))
 				}
 				state = betweenKV
@@ -482,15 +526,30 @@ func GenFilter() (f *T, err error) {
 	for i := range n {
 		p := make(B, 0, schnorr.PubKeyBytesLen*2)
 		p = hex.EncAppend(p, f.Authors.Field[i])
-		f.Tags.T = append(f.Tags.T, tag.New(B("p"), p))
-		idb := make(B, sha256.Size)
-		frand.Read(idb)
-		id := make(B, 0, sha256.Size*2)
-		id = hex.EncAppend(id, idb)
-		f.Tags.T = append(f.Tags.T, tag.New(B("e"), id))
-		f.Tags.T = append(f.Tags.T,
-			tag.New(B("a"),
-				B(fmt.Sprintf("%d:%s:", frand.Intn(65535), id))))
+	}
+	for b := 'a'; b <= 'z'; b++ {
+		l := frand.Intn(6)
+		if b == 'e' || b == 'p' {
+			var idb []B
+			for range l {
+				id := make(B, sha256.Size)
+				frand.Read(id)
+				idb = append(idb, id)
+			}
+			idb = append([]B{{'#', byte(b)}}, idb...)
+			f.Tags.T = append(f.Tags.T, tag.FromBytesSlice(idb...))
+		} else {
+			var idb []B
+			for range l {
+				bb := make(B, frand.Intn(31)+1)
+				frand.Read(bb)
+				id := make(B, 0, len(bb)*2)
+				id = hex.EncAppend(id, bb)
+				idb = append(idb, id)
+			}
+			idb = append([]B{{'#', byte(b)}}, idb...)
+			f.Tags.T = append(f.Tags.T, tag.FromBytesSlice(idb...))
+		}
 	}
 	tn := int(timestamp.Now().I64())
 	before := timestamp.T(tn - frand.Intn(10000))
