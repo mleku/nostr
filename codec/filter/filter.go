@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	. "nostr.mleku.dev"
+	"sort"
 
 	"ec.mleku.dev/v2/schnorr"
 	"ec.mleku.dev/v2/secp256k1"
 	"github.com/minio/sha256-simd"
 	"lukechampine.com/frand"
+	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/event"
 	"nostr.mleku.dev/codec/kind"
 	"nostr.mleku.dev/codec/kinds"
@@ -22,6 +23,14 @@ import (
 )
 
 // T is the primary query form for requesting events from a nostr relay.
+//
+// The ordering of fields of filters is not specified as in the protocol there is no requirement
+// to generate a hash for fast recognition of identical filters. However, for internal use in a
+// relay, by applying a consistent sort order, this library will produce an identical JSON from
+// the same *set* of fields no matter what order they were provided.
+//
+// This is to facilitate the deduplication of filters so an effective identical match is not
+// performed on an identical filter.
 type T struct {
 	IDs     *tag.T       `json:"ids,omitempty"`
 	Kinds   *kinds.T     `json:"kinds,omitempty"`
@@ -29,8 +38,8 @@ type T struct {
 	Tags    *tags.T      `json:"-,omitempty"`
 	Since   *timestamp.T `json:"since,omitempty"`
 	Until   *timestamp.T `json:"until,omitempty"`
-	Limit   int          `json:"limit,omitempty"`
 	Search  B            `json:"search,omitempty"`
+	Limit   int          `json:"limit,omitempty"`
 }
 
 func New() (f *T) {
@@ -41,8 +50,8 @@ func New() (f *T) {
 		Tags:    tags.New(),
 		Since:   timestamp.New(),
 		Until:   timestamp.New(),
-		Limit:   0,
 		Search:  nil,
+		Limit:   0,
 	}
 }
 
@@ -58,8 +67,8 @@ func (f *T) Clone() (clone *T) {
 		Tags:    f.Tags,
 		Since:   f.Since,
 		Until:   f.Until,
-		Limit:   1,
 		Search:  f.Search,
+		Limit:   1,
 	}
 }
 
@@ -67,6 +76,7 @@ var (
 	IDs     = B("ids")
 	Kinds   = B("kinds")
 	Authors = B("authors")
+	Tags    = B("tags")
 	Since   = B("since")
 	Until   = B("until")
 	Limit   = B("limit")
@@ -75,6 +85,8 @@ var (
 
 func (f *T) MarshalJSON(dst B) (b B, err error) {
 	var first bool
+	// sort the fields so they come out the same
+	f.Sort()
 	// open parentheses
 	dst = append(dst, '{')
 	if f.IDs != nil && len(f.IDs.Field) > 0 {
@@ -102,6 +114,17 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 		dst = text.JSONKey(dst, Authors)
 		dst = text.MarshalHexArray(dst, f.Authors.ToByteSlice())
 	}
+	if f.Tags != nil && len(f.Tags.T) > 0 {
+		if first {
+			dst = append(dst, ',')
+		} else {
+			first = true
+		}
+		dst = text.JSONKey(dst, Tags)
+		if dst, err = f.Tags.MarshalJSON(dst); Chk.E(err) {
+			return
+		}
+	}
 	if f.Since != nil && f.Since.U64() > 0 {
 		if first {
 			dst = append(dst, ',')
@@ -124,6 +147,15 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 			return
 		}
 	}
+	if len(f.Search) > 0 {
+		if first {
+			dst = append(dst, ',')
+		} else {
+			first = true
+		}
+		dst = text.JSONKey(dst, Search)
+		dst = text.AppendQuote(dst, f.Search, text.NostrEscape)
+	}
 	if f.Limit > 0 {
 		if first {
 			dst = append(dst, ',')
@@ -134,15 +166,6 @@ func (f *T) MarshalJSON(dst B) (b B, err error) {
 		if dst, err = ints.New(f.Limit).MarshalJSON(dst); Chk.E(err) {
 			return
 		}
-	}
-	if len(f.Search) > 0 {
-		if first {
-			dst = append(dst, ',')
-		} else {
-			first = true
-		}
-		dst = text.JSONKey(dst, Search)
-		dst = text.AppendQuote(dst, f.Search, text.NostrEscape)
 	}
 	// close parentheses
 	dst = append(dst, '}')
@@ -395,6 +418,15 @@ func (f *T) Fingerprint() (fp uint64, err E) {
 	fp = binary.LittleEndian.Uint64(hb)
 	f.Limit = lim
 	return
+}
+
+// Sort the fields of a filter so a fingerprint on a filter that has the same set of content
+// produces the same fingerprint.
+func (f *T) Sort() {
+	sort.Sort(f.IDs)
+	sort.Sort(f.Kinds)
+	sort.Sort(f.Authors)
+	sort.Sort(f.Tags)
 }
 
 func arePointerValuesEqual[V comparable](a *V, b *V) bool {

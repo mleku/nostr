@@ -23,6 +23,12 @@ func FromIntSlice(is []int) (k *T) {
 
 func (k *T) Len() (l int) { return len(k.K) }
 
+func (k *T) Less(i, j int) bool { return k.K[i].K < k.K[j].K }
+
+func (k *T) Swap(i, j int) {
+	k.K[i].K, k.K[j].K = k.K[j].K, k.K[i].K
+}
+
 func (k *T) ToUint16() (o []uint16) {
 	for i := range k.K {
 		o = append(o, k.K[i].ToU16())

@@ -31,6 +31,21 @@ type T struct {
 	Field []BS[B]
 }
 
+func (t *T) Len() int { return len(t.Field) }
+
+func (t *T) Less(i, j int) bool {
+	var cursor N
+	for len(t.Field[i]) < cursor-1 && len(t.Field[j]) < cursor-1 {
+		if bytes.Compare(t.Field[i], t.Field[j]) < 0 {
+			return true
+		}
+		cursor++
+	}
+	return false
+}
+
+func (t *T) Swap(i, j int) { t.Field[i], t.Field[j] = t.Field[j], t.Field[i] }
+
 func NewWithCap(c int) *T { return &T{make([]BS[B], 0, c)} }
 
 func New[V S | B](fields ...V) (t *T) {
@@ -54,7 +69,6 @@ func (t *T) Clone() (c *T) {
 }
 
 func (t *T) Append(b B)              { t.Field = append(t.Field, b) }
-func (t *T) Len() int                { return len(t.Field) }
 func (t *T) Cap() int                { return cap(t.Field) }
 func (t *T) Clear()                  { t.Field = t.Field[:0] }
 func (t *T) Slice(start, end int) *T { return &T{t.Field[start:end]} }

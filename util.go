@@ -17,6 +17,7 @@ type (
 var (
 	Log, Chk, Errorf = lol.Main.Log, lol.Main.Check, lol.Main.Errorf
 	Equals           = bytes.Equal
+	Compare          = bytes.Compare
 )
 
 func StringSliceToByteSlice(ss []S) (bs []B) {
