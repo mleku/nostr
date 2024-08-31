@@ -125,6 +125,14 @@ func (t *T) Key() B {
 	return nil
 }
 
+// FilterKey returns the first element of a filter tag (the key) with the # removed
+func (t *T) FilterKey() B {
+	if len(t.Field) > Key {
+		return t.Field[Key][1:]
+	}
+	return nil
+}
+
 // Value returns the second element of the tag.
 func (t *T) Value() B {
 	if len(t.Field) > Value {

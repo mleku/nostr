@@ -75,7 +75,12 @@ func (t *T) Swap(i, j int) {
 	t.T[i], t.T[j] = t.T[j], t.T[i]
 }
 
-func (t *T) Len() (l int) { return len(t.T) }
+func (t *T) Len() (l int) {
+	if t.T != nil {
+		return len(t.T)
+	}
+	return
+}
 
 // GetFirst gets the first tag in tags that matches the prefix, see [T.StartsWith]
 func (t *T) GetFirst(tagPrefix *tag.T) *tag.T {
@@ -161,23 +166,58 @@ func (t *T) Scan(src any) (err error) {
 	return
 }
 
-// ContainsAny returns true if any of the strings given in `values` matches any of the tag elements.
-func (t *T) ContainsAny(tagName B, values ...B) bool {
-	for _, v := range t.T {
-		if v.Len() < 2 {
-			continue
-		}
-		if !Equals(v.Key(), tagName) {
-			continue
-		}
-		for _, candidate := range values {
-			if Equals(v.Value(), candidate) {
-				return true
+// Intersects returns true if a filter tags.T has a match. This means the second character of
+// the filter tag key matches, (ignoring the stupid # prefix in the filter) and one of the
+// following values in the tag matches the first tag of this tag.
+func (t *T) Intersects(f *T) (has bool) {
+	if t == nil || f == nil {
+		// if either are empty there can't be a match (if caller wants to know if both are empty
+		// that's not the same as an intersection).
+		return
+	}
+	for _, v := range f.T {
+		for _, w := range t.T {
+			if Equals(v.FilterKey(), w.Key()) {
+				// we have a matching tag key, and both have a first field, check if tag has any
+				// of the subsequent values in the filter tag.
+				for _, val := range v.Field[1:] {
+					if Equals(val, w.Value()) {
+						return true
+					}
+				}
 			}
 		}
 	}
-	return false
+	return
 }
+
+// // ContainsAny returns true if any of the strings given in `values` matches any of the tag
+// // elements.
+// func (t *T) ContainsAny(tagName B, values *tag.T) bool {
+// 	for _, v := range t.T {
+// 		if v.Len() < 2 {
+// 			continue
+// 		}
+// 		if !Equals(v.Key(), tagName) {
+// 			continue
+// 		}
+// 		for _, candidate := range values.Field {
+// 			if Equals(v.Value(), candidate) {
+// 				return true
+// 			}
+// 		}
+// 	}
+// 	return false
+// }
+//
+// func (t *T) Contains(filterTags *T) (has bool) {
+// 	for _, v := range filterTags.T {
+// 		if t.ContainsAny(v.FilterKey(), v) {
+// 			return true
+// 		}
+// 	}
+// 	return
+// }
 
 // MarshalTo appends the JSON encoded byte of T as [][]string to dst. String escaping is as described in RFC8259.
 func (t *T) MarshalTo(dst B) []byte {

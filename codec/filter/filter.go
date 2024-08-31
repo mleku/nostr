@@ -1,7 +1,6 @@
 package filter
 
 import (
-	"bytes"
 	"encoding/binary"
 	"sort"
 
@@ -420,18 +419,8 @@ func (f *T) Matches(ev *event.T) bool {
 		// Log.T.F("no matching authors in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
 		return false
 	}
-	if f.Tags != nil {
-		for i, v := range f.Tags.T {
-			// remove the hash prefix (idk why this thing even exists tbh)
-			if bytes.HasPrefix(v.Field[0], B("#")) {
-				f.Tags.T[i].Field[0] = f.Tags.T[i].Field[0][1:]
-			}
-			if len(v.Field) > 0 && !ev.Tags.ContainsAny(v.Field[0], v.ToByteSlice()...) {
-				// Log.T.F("no matching tags in filter\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
-				return false
-			}
-			// special case for p tags
-		}
+	if f.Tags != nil && !ev.Tags.Intersects(f.Tags) {
+		return false
 	}
 	if f.Since != nil && f.Since.Int() != 0 && ev.CreatedAt != nil && ev.CreatedAt.I64() < f.Since.I64() {
 		// Log.T.F("event is older than since\nEVENT %s\nFILTER %s", ev.ToObject().String(), f.ToObject().String())
