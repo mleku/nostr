@@ -456,10 +456,18 @@ func (f *T) Fingerprint() (fp uint64, err E) {
 // Sort the fields of a filter so a fingerprint on a filter that has the same set of content
 // produces the same fingerprint.
 func (f *T) Sort() {
-	sort.Sort(f.IDs)
-	sort.Sort(f.Kinds)
-	sort.Sort(f.Authors)
-	sort.Sort(f.Tags)
+	if f.IDs != nil {
+		sort.Sort(f.IDs)
+	}
+	if f.Kinds != nil {
+		sort.Sort(f.Kinds)
+	}
+	if f.Authors != nil {
+		sort.Sort(f.Authors)
+	}
+	if f.Tags != nil {
+		sort.Sort(f.Tags)
+	}
 }
 
 func arePointerValuesEqual[V comparable](a *V, b *V) bool {
