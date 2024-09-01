@@ -175,6 +175,7 @@ func (t *T) Intersects(f *T) (has bool) {
 		// that's not the same as an intersection).
 		return
 	}
+	matches := len(f.T)
 	for _, v := range f.T {
 		for _, w := range t.T {
 			if Equals(v.FilterKey(), w.Key()) {
@@ -182,13 +183,13 @@ func (t *T) Intersects(f *T) (has bool) {
 				// of the subsequent values in the filter tag.
 				for _, val := range v.Field[1:] {
 					if Equals(val, w.Value()) {
-						return true
+						matches--
 					}
 				}
 			}
 		}
 	}
-	return
+	return matches == 0
 }
 
 // // ContainsAny returns true if any of the strings given in `values` matches any of the tag
