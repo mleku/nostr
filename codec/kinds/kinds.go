@@ -53,7 +53,7 @@ func (k *T) Clone() (c *T) {
 // typing always wins. No mistakes possible with known quantities.
 func (k *T) Contains(s *kind.T) bool {
 	for i := range k.K {
-		if k.K[i] == s {
+		if k.K[i].Equal(s) {
 			return true
 		}
 	}
