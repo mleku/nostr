@@ -119,6 +119,9 @@ func (t *T) StartsWith(prefix *T) bool {
 
 // Key returns the first element of the tags.
 func (t *T) Key() B {
+	if t == nil {
+		return nil
+	}
 	if len(t.Field) > Key {
 		return t.Field[Key]
 	}
@@ -127,6 +130,9 @@ func (t *T) Key() B {
 
 // FilterKey returns the first element of a filter tag (the key) with the # removed
 func (t *T) FilterKey() B {
+	if t == nil {
+		return nil
+	}
 	if len(t.Field) > Key {
 		return t.Field[Key][1:]
 	}
@@ -135,6 +141,9 @@ func (t *T) FilterKey() B {
 
 // Value returns the second element of the tag.
 func (t *T) Value() B {
+	if t == nil {
+		return nil
+	}
 	if len(t.Field) > Value {
 		return t.Field[Value]
 	}
@@ -145,6 +154,9 @@ var etag, ptag = B("e"), B("p")
 
 // Relay returns the third element of the tag.
 func (t *T) Relay() (s B) {
+	if t == nil {
+		return nil
+	}
 	if (Equals(t.Key(), etag) ||
 		Equals(t.Key(), ptag)) &&
 		len(t.Field) >= Relay {

@@ -1,10 +1,11 @@
 package ws
 
 import (
-	. "nostr.mleku.dev"
 	"strconv"
 	"sync"
 	"sync/atomic"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes/closeenvelope"
 	"nostr.mleku.dev/codec/envelopes/countenvelope"
