@@ -26,7 +26,7 @@ func (ev *T) Verify() (valid bool, err error) {
 	if err = keys.InitPub(ev.PubKey); Chk.E(err) {
 		return
 	}
-	if valid, err = keys.Verify(ev.ID, ev.Sig); Chk.E(err) {
+	if valid, err = keys.Verify(ev.ID, ev.Sig); Chk.T(err) {
 		// check that this isn't because of a bogus ID
 		id := ev.GetIDBytes()
 		if !Equals(id, ev.ID) {

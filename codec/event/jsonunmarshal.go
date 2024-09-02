@@ -2,6 +2,7 @@ package event
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
@@ -117,7 +118,7 @@ InVal:
 			if !Equals(jContent, key) {
 				goto invalid
 			}
-			if ev.Content, r, err = text.UnmarshalQuoted(r); Chk.E(err) {
+			if ev.Content, r, err = text.UnmarshalQuoted(r); Chk.T(err) {
 				return
 			}
 			goto BetweenKV
@@ -126,7 +127,7 @@ InVal:
 				goto invalid
 			}
 			ev.CreatedAt = timestamp.New()
-			if r, err = ev.CreatedAt.UnmarshalJSON(r); Chk.E(err) {
+			if r, err = ev.CreatedAt.UnmarshalJSON(r); Chk.T(err) {
 				return
 			}
 			goto BetweenKV

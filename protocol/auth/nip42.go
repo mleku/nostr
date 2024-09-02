@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"net/url"
-	. "nostr.mleku.dev"
 	"strings"
 	"time"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/event"
 	"nostr.mleku.dev/codec/kind"
@@ -50,7 +51,7 @@ var RelayTag = B("relay")
 
 // Validate checks whether event is a valid NIP-42 event for given challenge and relayURL.
 // The result of the validation is encoded in the ok bool.
-func Validate(evt *event.T, challenge B, relayURL S) (ok bool, err error) {
+func Validate(evt *event.T, challenge B, relayURL S) (ok bool, err E) {
 	if evt.Kind != kind.ClientAuthentication {
 		err = Log.E.Err("event incorrect kind for auth: %d %s",
 			evt.Kind, kind.Map[evt.Kind])

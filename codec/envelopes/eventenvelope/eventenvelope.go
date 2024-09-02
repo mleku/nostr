@@ -2,6 +2,7 @@ package eventenvelope
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -48,7 +49,7 @@ func (en *Submission) MarshalJSON(dst B) (b B, err error) {
 func (en *Submission) UnmarshalJSON(b B) (r B, err error) {
 	r = b
 	en.T = event.New()
-	if r, err = en.T.UnmarshalJSON(r); Chk.E(err) {
+	if r, err = en.T.UnmarshalJSON(r); Chk.T(err) {
 		return
 	}
 	if r, err = en.T.MarshalJSON(nil); Chk.E(err) {
@@ -76,9 +77,9 @@ type Result struct {
 
 var _ enveloper.I = (*Result)(nil)
 
-func NewResult() *Result                          { return &Result{} }
-func NewResultWith(s *sid.T, ev *event.T) *Result { return &Result{Subscription: s, Event: ev} }
-func (en *Result) Label() S                       { return L }
+func NewResult() *Result                              { return &Result{} }
+func NewResultWith[V S | B](s V, ev *event.T) *Result { return &Result{sid.MustNew(s), ev} }
+func (en *Result) Label() S                           { return L }
 
 func (en *Result) Write(w io.Writer) (err E) {
 	var b B

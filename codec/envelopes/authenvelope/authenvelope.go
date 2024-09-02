@@ -2,6 +2,7 @@ package authenvelope
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	envs "nostr.mleku.dev/codec/envelopes"
@@ -16,9 +17,9 @@ type Challenge struct {
 	Challenge B
 }
 
-func NewChallenge() *Challenge                { return &Challenge{} }
-func NewChallengeWith(challenge B) *Challenge { return &Challenge{Challenge: challenge} }
-func (en *Challenge) Label() string           { return L }
+func NewChallenge() *Challenge                         { return &Challenge{} }
+func NewChallengeWith[V S | B](challenge V) *Challenge { return &Challenge{B(challenge)} }
+func (en *Challenge) Label() string                    { return L }
 
 func (en *Challenge) Write(w io.Writer) (err E) {
 	var b B

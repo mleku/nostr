@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"io"
 	"net/http"
-	. "nostr.mleku.dev"
 	"strings"
 	"sync"
 	"time"
+
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/bech32"
 	"github.com/fasthttp/websocket"
@@ -70,7 +71,7 @@ func (ws *Serv) write(t MessageType, b B) (err E) {
 	ws.mutex.Lock()
 	defer ws.mutex.Unlock()
 	if len(b) != 0 {
-		Log.T.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
+		Log.D.F("sending message to %s %0x\n%s", ws.Remote(), ws.AuthPub(), string(b))
 	}
 	Chk.E(ws.Conn.SetWriteDeadline(time.Now().Add(time.Second * 5)))
 	return ws.Conn.WriteMessage(int(t), b)

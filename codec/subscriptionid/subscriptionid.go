@@ -2,6 +2,7 @@ package subscriptionid
 
 import (
 	"crypto/rand"
+
 	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/bech32"
@@ -30,6 +31,11 @@ func New[V S | B](s V) (*T, error) {
 		return si, Errorf.E(
 			"invalid subscription ID - length %d < 1 or > 64", len(si.T))
 	}
+}
+
+// MustNew is the same as New except it doesn't check if you feed it rubbish.
+func MustNew[V S | B](s V) *T {
+	return &T{T: B(s)}
 }
 
 const StdLen = 14

@@ -66,7 +66,7 @@ func (f *T) Clone() (clone *T) {
 		Since:   f.Since,
 		Until:   f.Until,
 		Search:  f.Search,
-		Limit:   1,
+		Limit:   2,
 	}
 }
 
@@ -481,7 +481,6 @@ func arePointerValuesEqual[V comparable](a *V, b *V) bool {
 }
 
 func Equal(a, b *T) bool {
-	// switch is a convenient way to bundle a long list of tests like this:
 	if !a.Kinds.Equals(b.Kinds) ||
 		!a.IDs.Equal(b.IDs) ||
 		!a.Authors.Equal(b.Authors) ||

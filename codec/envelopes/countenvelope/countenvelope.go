@@ -4,6 +4,7 @@ import "C"
 import (
 	"bytes"
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -93,8 +94,12 @@ type Response struct {
 var _ enveloper.I = (*Response)(nil)
 
 func NewResponse() *Response { return &Response{ID: sid.NewStd()} }
-func NewResponseFrom(id *sid.T, cnt int, approx bool) *Response {
-	return &Response{id, cnt, approx}
+func NewResponseFrom[V S | B](id V, cnt int, approx ...bool) *Response {
+	var a bool
+	if len(approx) > 0 {
+		a = approx[0]
+	}
+	return &Response{sid.MustNew(id), cnt, a}
 }
 func (en *Response) Label() string { return L }
 func (en *Response) Write(w io.Writer) (err E) {

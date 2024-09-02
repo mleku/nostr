@@ -2,6 +2,7 @@ package okenvelope
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -22,10 +23,16 @@ type T struct {
 
 var _ enveloper.I = (*T)(nil)
 
-func New() *T                                   { return &T{} }
-func NewFrom(eid *eventid.T, ok bool, msg B) *T { return &T{EventID: eid, OK: ok, Reason: msg} }
-func (en *T) Label() string                     { return L }
-func (en *T) ReasonString() string              { return S(en.Reason) }
+func New() *T { return &T{} }
+func NewFrom[V S | B](eid V, ok bool, msg ...B) *T {
+	var m B
+	if len(msg) > 0 {
+		m = msg[0]
+	}
+	return &T{EventID: eventid.NewWith(eid), OK: ok, Reason: m}
+}
+func (en *T) Label() string        { return L }
+func (en *T) ReasonString() string { return S(en.Reason) }
 
 func (en *T) Write(w io.Writer) (err E) {
 	var b B
