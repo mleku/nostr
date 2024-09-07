@@ -2,10 +2,11 @@ package dns
 
 import (
 	"context"
+	"testing"
+
 	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/bech32encoding/pointers"
 	"nostr.mleku.dev/crypto/keys"
-	"testing"
 )
 
 func TestParse(t *testing.T) {
@@ -45,7 +46,9 @@ func TestQuery(t *testing.T) {
 	var err E
 	var pp *pointers.Profile
 	acct := "fiatjaf.com"
-	pp, err = QueryIdentifier(context.Background(), acct)
+	if pp, err = QueryIdentifier(context.Background(), acct); Chk.E(err) {
+		t.Fatal(err)
+	}
 	if pkb, err = keys.HexPubkeyToBytes(
 		"3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"); Chk.E(err) {
 		t.Fatal(err)

@@ -1,8 +1,9 @@
 package okenvelope
 
 import (
-	. "nostr.mleku.dev"
 	"testing"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/envelopes/messages"
@@ -14,7 +15,7 @@ func TestMarshalJSONUnmarshalJSON(t *testing.T) {
 	rb, rb1, rb2 := make(B, 0, 65535), make(B, 0, 65535), make(B, 0, 65535)
 	for i := range 1000 {
 		randMsg := messages.RandomMessage()
-		req := NewFrom(eventid.Gen(), i%2 == 1, randMsg)
+		req := NewFrom(eventid.Gen().Bytes(), i%2 == 1, randMsg)
 		if rb, err = req.MarshalJSON(rb); Chk.E(err) {
 			t.Fatal(err)
 		}

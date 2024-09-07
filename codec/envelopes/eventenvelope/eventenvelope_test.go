@@ -3,8 +3,9 @@ package eventenvelope
 import (
 	"bufio"
 	"bytes"
-	. "nostr.mleku.dev"
 	"testing"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
 	"nostr.mleku.dev/codec/event"
@@ -70,7 +71,7 @@ func TestResult(t *testing.T) {
 			t.Fatalf("some of input remaining after marshal/unmarshal: '%s'",
 				rem)
 		}
-		ea := NewResultWith(subscriptionid.NewStd(), ev)
+		ea := NewResultWith(subscriptionid.NewStd().String(), ev)
 		if rem, err = ea.MarshalJSON(rem); Chk.E(err) {
 			t.Fatal(err)
 		}

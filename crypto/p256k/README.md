@@ -37,3 +37,5 @@ just use the default autotools:
 make
 sudo make install
 ```
+
+On WSL2 you may have to attend to various things to make this work, setting up your basic locale (uncomment one or more in `/etc/locale.gen`, and run `locale-gen`), installing the basic build tools (build-essential or base-devel) and of course git, curl, wget, libtool and autoconf.

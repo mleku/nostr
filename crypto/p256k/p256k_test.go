@@ -5,13 +5,14 @@ package p256k_test
 import (
 	"bufio"
 	"bytes"
-	. "nostr.mleku.dev"
-	"nostr.mleku.dev/crypto"
+	"crypto/sha256"
 	"testing"
 	"time"
 
+	. "nostr.mleku.dev"
+	"nostr.mleku.dev/crypto"
+
 	"ec.mleku.dev/v2/schnorr"
-	"github.com/minio/sha256-simd"
 	"nostr.mleku.dev/codec/event"
 	"nostr.mleku.dev/codec/event/examples"
 	"nostr.mleku.dev/crypto/p256k"
@@ -33,7 +34,7 @@ func TestSigner_Generate(t *testing.T) {
 }
 
 func TestSignerVerify(t *testing.T) {
-	evs := make([]*event.T, 0, 10000)
+	// evs := make([]*event.T, 0, 10000)
 	scanner := bufio.NewScanner(bytes.NewBuffer(examples.Cache))
 	buf := make(B, 1_000_000)
 	scanner.Buffer(buf, len(buf))
@@ -42,12 +43,14 @@ func TestSignerVerify(t *testing.T) {
 	for scanner.Scan() {
 		var valid bool
 		b := scanner.Bytes()
+		bc := make(B, 0, len(b))
+		bc = append(bc, b...)
 		ev := event.New()
 		if _, err = ev.UnmarshalJSON(b); Chk.E(err) {
 			t.Errorf("failed to marshal\n%s", b)
 		} else {
-			if valid, err = ev.Verify(); Chk.E(err) || !valid {
-				t.Errorf("invalid signature\n%s", b)
+			if valid, err = ev.Verify(); err != nil || !valid {
+				t.Errorf("invalid signature\n%s", bc)
 				continue
 			}
 		}
@@ -56,17 +59,21 @@ func TestSignerVerify(t *testing.T) {
 			t.Errorf("id should be 32 bytes, got %d", len(id))
 			continue
 		}
-		if err = signer.InitPub(ev.PubKey); Chk.E(err) {
-			t.Errorf("failed to init pub key: %s\n%0x", err, b)
+		if err = signer.InitPub(ev.PubKey); err != nil {
+			t.Errorf("failed to init pub key: %s\n%0x", err, ev.PubKey)
+			continue
 		}
 		if valid, err = signer.Verify(id, ev.Sig); Chk.E(err) {
-			t.Errorf("failed to verify: %s\n%0x", err, b)
+			t.Errorf("failed to verify: %s\n%0x", err, ev.ID)
+			continue
 		}
 		if !valid {
-			t.Errorf("invalid signature for pub %0x %0x %0x", ev.PubKey, id,
-				ev.Sig)
+			t.Errorf("invalid signature for\npub %0x\neid %0x\nsig %0x\n%s",
+				ev.PubKey, id, ev.Sig, bc)
+			continue
 		}
-		evs = append(evs, ev)
+		// fmt.Printf("%s\n", bc)
+		// evs = append(evs, ev)
 	}
 }
 

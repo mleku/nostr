@@ -6,10 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/net/websocket"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync"
+	"testing"
+	"time"
+
+	"golang.org/x/net/websocket"
 	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/envelopes/eventenvelope"
 	"nostr.mleku.dev/codec/envelopes/okenvelope"
@@ -20,9 +24,6 @@ import (
 	"nostr.mleku.dev/codec/tags"
 	"nostr.mleku.dev/codec/timestamp"
 	"nostr.mleku.dev/crypto/p256k"
-	"sync"
-	"testing"
-	"time"
 	"util.mleku.dev/normalize"
 )
 
@@ -63,7 +64,7 @@ func TestPublish(t *testing.T) {
 		if raw[1], err = env.UnmarshalJSON(raw[1]); Chk.E(err) {
 			t.Fatal(err)
 		}
-		//event := parseEventMessage(t, raw)
+		// event := parseEventMessage(t, raw)
 		if !bytes.Equal(env.T.Serialize(), textNote.Serialize()) {
 			t.Errorf("received event:\n%s\nwant:\n%s", env.T.Serialize(), textNote.Serialize())
 		}
@@ -73,7 +74,7 @@ func TestPublish(t *testing.T) {
 			t.Fatal(err)
 		}
 		var res B
-		if res, err = okenvelope.NewFrom(eid, true, nil).MarshalJSON(res); Chk.E(err) {
+		if res, err = okenvelope.NewFrom(eid.Bytes(), true, nil).MarshalJSON(res); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if err := websocket.Message.Send(conn, res); err != nil {
@@ -121,14 +122,14 @@ func TestPublishBlocked(t *testing.T) {
 			t.Fatal(err)
 		}
 		var res B
-		if res, err = okenvelope.NewFrom(eid, false,
+		if res, err = okenvelope.NewFrom(eid.Bytes(), false,
 			normalize.Msg(normalize.Blocked, "no reason")).MarshalJSON(res); Chk.E(err) {
 			t.Fatal(err)
 		}
 		if err := websocket.Message.Send(conn, res); err != nil {
 			t.Errorf("websocket.JSON.Send: %v", err)
 		}
-		//res := []any{"OK", textNote.ID, false, "blocked"}
+		// res := []any{"OK", textNote.ID, false, "blocked"}
 		websocket.JSON.Send(conn, res)
 	})
 	defer ws.Close()

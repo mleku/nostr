@@ -2,6 +2,7 @@ package examples
 
 import (
 	_ "embed"
+
 	. "nostr.mleku.dev"
 )
 

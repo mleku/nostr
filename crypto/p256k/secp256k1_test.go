@@ -5,8 +5,9 @@ package p256k_test
 import (
 	"bufio"
 	"bytes"
-	. "nostr.mleku.dev"
 	"testing"
+
+	. "nostr.mleku.dev"
 
 	"ec.mleku.dev/v2/schnorr"
 	"github.com/minio/sha256-simd"
