@@ -20,7 +20,6 @@ func TestT_MarshalUnmarshal(t *testing.T) {
 		if dst, err = f.MarshalJSON(dst); Chk.E(err) {
 			t.Fatal(err)
 		}
-		Log.I.F("\n%s\n", dst)
 		dst1 = append(dst1, dst...)
 		// now unmarshal
 		var rem B

@@ -1,8 +1,9 @@
 package tag
 
 import (
-	. "nostr.mleku.dev"
 	"testing"
+
+	. "nostr.mleku.dev"
 
 	"lukechampine.com/frand"
 )

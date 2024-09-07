@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	_ "embed"
-	. "nostr.mleku.dev"
 	"strings"
 	"testing"
+
+	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/event/examples"
 	"nostr.mleku.dev/crypto/p256k"

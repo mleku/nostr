@@ -12,7 +12,7 @@ require (
 	github.com/templexxx/xhex v0.0.0-20200614015412-aed53437177b
 	golang.org/x/crypto v0.26.0
 	lukechampine.com/frand v1.4.2
-	util.mleku.dev v1.0.2
+	util.mleku.dev v1.0.3
 )
 
 require (

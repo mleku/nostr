@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"crypto/tls"
 	"net/http"
+	"sync"
+	"time"
+
 	. "nostr.mleku.dev"
 	"nostr.mleku.dev/codec/envelopes/closedenvelope"
 	"nostr.mleku.dev/codec/envelopes/countenvelope"
 	"nostr.mleku.dev/codec/envelopes/eoseenvelope"
 	"nostr.mleku.dev/codec/envelopes/okenvelope"
 	"nostr.mleku.dev/crypto"
-	"sync"
-	"time"
 
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
@@ -363,7 +364,7 @@ func (r *Client) publish(ctx Ctx, ev *event.T) (err E) {
 			return
 		}
 	}
-	Log.I.F("{%s} sending %s\n", r.URL, b)
+	Log.T.F("{%s} sending %s\n", r.URL, b)
 	if err = <-r.Write(b); err != nil {
 		return err
 	}

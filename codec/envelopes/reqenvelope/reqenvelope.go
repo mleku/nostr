@@ -2,6 +2,7 @@ package reqenvelope
 
 import (
 	"io"
+
 	. "nostr.mleku.dev"
 
 	"nostr.mleku.dev/codec/envelopes"
@@ -50,7 +51,6 @@ func (en *T) MarshalJSON(dst B) (b B, err error) {
 					return
 				}
 			}
-			Log.I.S(en.Filters)
 			return
 		})
 	return
