@@ -1,6 +1,6 @@
 module nostr.mleku.dev
 
-go 1.23.0
+go 1.22.7
 
 require (
 	ec.mleku.dev/v2 v2.3.5
