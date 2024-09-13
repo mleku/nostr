@@ -14,7 +14,7 @@ require (
 	golang.org/x/crypto v0.27.0
 	golang.org/x/net v0.29.0
 	lukechampine.com/frand v1.4.2
-	util.mleku.dev v1.0.4
+	util.mleku.dev v1.0.5
 )
 
 require (
